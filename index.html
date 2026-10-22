@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VocalCue</title>
+<style>
+  :root{
+    --bg: #11282b;
+    --bg-deep: #0b1d1f;
+    --surface: #17363a;
+    --surface-raised: #1d4247;
+    --line: #2d5559;
+    --text: #f3ede1;
+    --text-dim: #b9c9c7;
+    --accent: #e3a23d;
+    --accent-dim: #b9802e;
+    --accent-2: #73b6a4;
+    --danger: #d9684f;
+    --radius: 10px;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg: #11282b;
+      --bg-deep: #0b1d1f;
+      --surface: #17363a;
+      --surface-raised: #1d4247;
+      --line: #2d5559;
+      --text: #f3ede1;
+      --text-dim: #b9c9c7;
+      --accent: #e3a23d;
+      --accent-dim: #b9802e;
+      --accent-2: #73b6a4;
+      --danger: #d9684f;
+    }
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg-deep);
+    color: var(--text);
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    min-height:100vh;
+    padding-bottom:40px;
+  }
+  .wrap{
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+  header{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px;
+  }
+  .brand{
+    font-family: Georgia, "Source Serif Pro", serif;
+    font-size: 1.7rem;
+    letter-spacing: 0.01em;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .brand span{ color: var(--accent); }
+  .storage-pill{
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    border:1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 10px;
+    white-space:nowrap;
+  }
+  section{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  h2{
+    margin: 0 0 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+  label{
+    display:block;
+    font-size:0.85rem;
+    color: var(--text-dim);
+    margin-bottom:6px;
+  }
+  select, input[type=text], input[type=url]{
+    width:100%;
+    background: var(--bg-deep);
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+  select:focus, input:focus, button:focus{
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  button{
+    font-family: inherit;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface-raised);
+    color: var(--text);
+    padding: 9px 14px;
+    cursor:pointer;
+  }
+  button:hover{ border-color: var(--accent-dim); }
+  button.primary{
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #26190a;
+    font-weight: 600;
+  }
+  button.primary:hover{ background: var(--accent-dim); border-color: var(--accent-dim); }
+  button.ghost{
+    background: transparent;
+  }
+  button.danger{
+    color: var(--danger);
+    border-color: var(--danger);
+    background: transparent;
+  }
+  button.small{
+    padding: 5px 9px;
+    font-size: 0.78rem;
+  }
+  .row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .row > *{ flex: 1 1 auto; }
+  .tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom: 12px;
+  }
+  .tabs button{
+    flex:1;
+    background: var(--bg-deep);
+  }
+  .tabs button.active{
+    background: var(--accent);
+    color:#26190a;
+    border-color: var(--accent);
+    font-weight:600;
+  }
+  .hidden{ display:none !important; }
+  .player-box{
+    background: var(--bg-deep);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  audio{ width: 100%; }
+  #yt-player-container{
+    position:relative;
+    width:100%;
+    aspect-ratio: 16/9;
+    border-radius:8px;
+    overflow:hidden;
+    background:#000;
+  }
+  #yt-player-container iframe{
+    position:absolute; top:0; left:0; width:100%; height:100%; border:0;
+  }
+  .time-readout{
+    font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 1.1rem;
+    color: var(--accent-2);
+    text-align:center;
+    margin: 8px 0;
+  }
+  .marker-list{
+    list-style:none;
+    margin:0; padding:0;
+  }
+  .marker-list li{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .marker-list li:last-child{ border-bottom:none; }
+  .marker-time{
+    font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+    color: var(--accent-2);
+    font-size:0.85rem;
+    min-width: 54px;
+  }
+  .marker-label{
+    flex:1;
+    font-size:0.92rem;
+  }
+  .marker-actions{ display:flex; gap:6px; }
+  .empty-note{
+    color: var(--text-dim);
+    font-size:0.88rem;
+    font-style: italic;
+  }
+  details summary{
+    cursor:pointer;
+    font-weight:600;
+    color: var(--text-dim);
+    font-size:0.9rem;
+    list-style: none;
+  }
+  details summary::-webkit-details-marker{ display:none; }
+  details summary::before{
+    content: "▸ ";
+    color: var(--accent);
+  }
+  details[open] summary::before{ content: "▾ "; }
+  details .inst-body{ margin-top:12px; font-size: 0.88rem; line-height:1.55; color: var(--text); }
+  details .inst-body h3{ font-size:0.85rem; color:var(--accent-2); margin: 14px 0 4px; }
+  details .inst-body ol, details .inst-body ul{ padding-left: 20px; margin: 4px 0; }
+  details .inst-body code{
+    background: var(--bg-deep);
+    padding: 1px 5px;
+    border-radius:4px;
+    font-size:0.82rem;
+  }
+  .modal-backdrop{
+    position:fixed; inset:0;
+    background: rgba(0,0,0,0.6);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+    z-index: 50;
+  }
+  .modal{
+    background: var(--surface-raised);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    max-width: 420px;
+    width:100%;
+  }
+  .modal h3{ margin-top:0; font-size:1rem; }
+  .modal ul{ list-style:none; padding:0; margin:12px 0; }
+  .modal li{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 0; border-bottom:1px solid var(--line);
+  }
+  .toast{
+    position:fixed;
+    bottom: 18px; left:50%;
+    transform: translateX(-50%);
+    background: var(--surface-raised);
+    border:1px solid var(--accent);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size:0.85rem;
+    z-index: 60;
+    max-width: 90%;
+    text-align:center;
+  }
+  .filename-hint{
+    font-size:0.78rem;
+    color: var(--text-dim);
+    margin-top:-4px;
+    margin-bottom:10px;
+  }
+  .checkbox-row{
+    display:flex; align-items:center; gap:8px;
+    font-size:0.88rem;
+    color: var(--text-dim);
+    margin-bottom:10px;
+  }
+  .checkbox-row input{ width:auto; margin:0; }
+  .project-bar{
+    display:flex;
+    gap:8px;
+    align-items:flex-end;
+    margin-bottom: 4px;
+  }
+  .project-bar > div{ flex:1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">Vocal<span>Cue</span></div>
+    <div class="storage-pill" id="storage-pill">rilevamento…</div>
+  </header>
+
+  <section>
+    <h2>Progetto</h2>
+    <div class="project-bar">
+      <div>
+        <label for="project-select">Progetti (es. musical, coro, classi diverse)</label>
+        <select id="project-select">
+          <option value="">— Nessun progetto selezionato —</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <button id="btn-add-project">Nuovo progetto</button>
+      <button class="ghost small" id="btn-rename-project">Rinomina</button>
+      <button class="danger small" id="btn-delete-project">Elimina progetto</button>
+    </div>
+  </section>
+
+  <section id="track-section" class="hidden">
+    <h2>Traccia</h2>
+    <label for="track-select">Tracce del progetto</label>
+    <select id="track-select">
+      <option value="">— Nessuna traccia selezionata —</option>
+    </select>
+    <div class="row">
+      <button class="ghost small" id="btn-rename-track">Rinomina</button>
+      <button class="danger small" id="btn-delete-track">Elimina traccia</button>
+    </div>
+  </section>
+
+  <section id="add-track-section" class="hidden">
+    <h2>Aggiungi una nuova traccia al progetto</h2>
+    <div class="tabs">
+      <button id="tab-file" class="active">File audio</button>
+      <button id="tab-youtube">Link YouTube</button>
+    </div>
+
+    <div id="panel-file">
+      <label for="audio-file-input">Seleziona file audio</label>
+      <input type="file" id="audio-file-input" accept="audio/*">
+      <div class="checkbox-row">
+        <input type="checkbox" id="keep-in-browser">
+        <label for="keep-in-browser" style="margin:0;">Mantieni in memoria su questo dispositivo (max 5 file, in totale)</label>
+      </div>
+      <button class="primary" id="btn-add-file-track">Aggiungi traccia da file</button>
+    </div>
+
+    <div id="panel-youtube" class="hidden">
+      <label for="youtube-url-input">Incolla il link YouTube</label>
+      <input type="url" id="youtube-url-input" placeholder="https://www.youtube.com/watch?v=...">
+      <button class="primary" id="btn-add-youtube-track">Aggiungi traccia da YouTube</button>
+    </div>
+  </section>
+
+  <section id="player-section" class="hidden">
+    <h2>Riproduzione</h2>
+    <div class="player-box">
+      <div id="audio-player-box">
+        <audio id="audio-player" controls></audio>
+      </div>
+      <div id="yt-player-box" class="hidden">
+        <div id="yt-player-container"><div id="yt-player"></div></div>
+      </div>
+    </div>
+    <div class="time-readout" id="time-readout">00:00</div>
+    <div class="row">
+      <button class="primary" id="btn-add-marker">Segna questo punto</button>
+    </div>
+  </section>
+
+  <section id="markers-section" class="hidden">
+    <h2>Marcatori</h2>
+    <ul class="marker-list" id="marker-list"></ul>
+    <p class="empty-note hidden" id="markers-empty">Nessun marcatore ancora. Riproduci la traccia e tocca "Segna questo punto".</p>
+  </section>
+
+  <section>
+    <h2>Configurazione</h2>
+    <div class="row">
+      <button id="btn-export">Esporta configurazione</button>
+      <button id="btn-import">Importa configurazione</button>
+    </div>
+    <input type="file" id="import-file-input" accept="application/json" class="hidden">
+    <div class="row" id="folder-row">
+      <button id="btn-set-folder">Imposta cartella sul dispositivo</button>
+    </div>
+    <p class="filename-hint" id="folder-status"></p>
+  </section>
+
+  <section>
+    <details id="instructions">
+      <summary>Istruzioni</summary>
+      <div class="inst-body">
+        <h3>0. Mettere VocalCue comodamente sul telefono</h3>
+        <p>Salva questo file HTML in una cartella dedicata sul telefono, ad esempio chiamata <code>VocalCue</code> — la stessa che userai per i file audio.</p>
+        <p><strong>Android (Chrome):</strong> apri il file da Chrome, tocca i tre puntini in alto a destra, scegli "Aggiungi a schermata Home". Da quel momento avrai un'icona che apre l'app a schermo intero.</p>
+        <p><strong>iPhone (Safari):</strong> apri il file dall'app File scegliendo "Apri in Safari", tocca l'icona di condivisione in basso, scorri e scegli "Aggiungi a Home".</p>
+
+        <h3>1. Progetti</h3>
+        <p>Un progetto raccoglie le canzoni di un corso, una classe o un musical specifico (es. "Musical classe A", "Coro del giovedì"). Crea un progetto, poi aggiungi al suo interno tutte le tracce che ti servono per quel gruppo. Puoi passare da un progetto all'altro dal menu in alto in qualsiasi momento.</p>
+
+        <h3>2. La cartella VocalCue</h3>
+        <p>Crea una cartella chiamata <code>VocalCue</code> sul tuo dispositivo: lì terrai tutti i file audio usati nell'app, organizzati automaticamente in una sottocartella per ogni progetto.</p>
+        <p><strong>Computer (Chrome o Edge su Windows/Mac/Linux):</strong> tocca "Imposta cartella sul dispositivo" qui sopra e seleziona quella cartella una volta sola. Da quel momento, quando carichi un nuovo file audio, viene salvato lì automaticamente — e viene ritrovato da solo ogni volta che riapri l'app.</p>
+        <p><strong>Android e iPhone:</strong> questa automazione non è disponibile sui telefoni (è un limite del browser, non dell'app). Copia prima manualmente il file audio nella cartella VocalCue (tramite l'app File o Google Drive, salvandolo da Mail, AirDrop, iCloud o Drive), poi selezionalo dall'app quando richiesto. Il nome del file atteso è sempre indicato accanto al nome della traccia nel menu a tendina.</p>
+        <p><strong>Suggerimento — usare Google Drive come cartella:</strong> se hai l'app Google Drive installata sul telefono, puoi tenere la cartella VocalCue dentro Drive invece che solo in locale. Così, quando l'app ti chiede di selezionare un file, Drive comparirà tra le origini disponibili nel selettore, e lo stesso file sarà automaticamente presente anche sugli altri dispositivi collegati allo stesso account — senza doverlo trasferire a mano tra telefoni. Resta comunque una selezione manuale ogni volta (il file non viene "ricordato" da solo), e se non è già scaricato sul dispositivo serve una connessione internet per recuperarlo.</p>
+
+        <h3>3. Marcatori</h3>
+        <p>Metti in pausa la traccia nel punto che vuoi memorizzare e tocca "Segna questo punto": ti verrà chiesta un'etichetta (es. "Ritornello"). Tocca un marcatore nella lista per far ripartire la traccia esattamente da lì. Ogni marcatore può essere rinominato o eliminato singolarmente.</p>
+
+        <h3>4. "Mantieni in memoria su questo dispositivo"</h3>
+        <p>Opzione alternativa alla cartella (utile anche su iPhone): salva il file audio direttamente nel browser, fino a un massimo di 5 file in totale su tutti i progetti. Se provi ad aggiungerne un sesto, l'app ti chiederà quale dei 5 eliminare per fare spazio.</p>
+
+        <h3>5. Eliminare una traccia o un progetto</h3>
+        <p>Su computer (Chrome/Edge), quando elimini una traccia ti viene chiesto se vuoi cancellare anche il file fisico dalla cartella o solo rimuoverlo dall'elenco. Su Android e iPhone, l'eliminazione rimuove solo la traccia dall'app: il file resta nella cartella (locale o su Drive) e va rimosso manualmente se non serve più. Eliminare un progetto elimina tutte le sue tracce e marcatori.</p>
+
+        <h3>6. Esportare/importare la configurazione</h3>
+        <p>Il pulsante "Esporta configurazione" scarica un file JSON con tutti i progetti, le tracce e i marcatori, utile come backup o per trasferirli su un altro dispositivo. "Importa configurazione" ricarica quel file.</p>
+
+        <h3>7. Link YouTube</h3>
+        <p>Per una base karaoke da YouTube, incolla il link: il video resta visibile nella pagina (è un requisito di YouTube), ma puoi comunque segnare punti precisi e farli ripartire da lì come con un file audio.</p>
+      </div>
+    </details>
+  </section>
+
+</div>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script>
+(function(){
+
+// ---------- State ----------
+const CONFIG_KEY = 'vocalcue_config_v2';
+const MAX_BROWSER_FILES = 5;
+let config = { projects: [] }; // {id,name,tracks:[{id,name,type,fileName,youtubeId,markers:[{id,label,time}],storedInBrowser}]}
+let currentProjectId = null;
+let currentTrackId = null;
+let currentObjectUrl = null;
+let ytPlayer = null;
+let ytReady = false;
+let dirHandle = null; // FileSystemDirectoryHandle (root VocalCue folder)
+let fsApiSupported = ('showDirectoryPicker' in window);
+
+const el = (id) => document.getElementById(id);
+
+function uid(){ return 'id' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+function showToast(msg, ms=3200){
+  const root = el('toast-root');
+  root.innerHTML = '';
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  root.appendChild(t);
+  setTimeout(()=>{ if(root.contains(t)) root.removeChild(t); }, ms);
+}
+
+function saveConfig(){
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+}
+function loadConfig(){
+  try{
+    const raw = localStorage.getItem(CONFIG_KEY);
+    if(raw){
+      config = JSON.parse(raw);
+      return;
+    }
+    // Migrazione da versione precedente senza progetti
+    const old = localStorage.getItem('vocalcue_config_v1');
+    if(old){
+      const oldConfig = JSON.parse(old);
+      if(oldConfig.tracks && oldConfig.tracks.length){
+        config = { projects: [{ id: uid(), name: 'Tracce importate', tracks: oldConfig.tracks }] };
+        saveConfig();
+        return;
+      }
+    }
+    config = { projects: [] };
+  }catch(e){ config = { projects: [] }; }
+}
+
+function fmtTime(sec){
+  sec = Math.max(0, Math.floor(sec||0));
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = (sec%60).toString().padStart(2,'0');
+  return m+':'+s;
+}
+
+// ---------- IndexedDB (handles + blobs) ----------
+let dbPromise = null;
+function openDb(){
+  if(dbPromise) return dbPromise;
+  dbPromise = new Promise((resolve, reject)=>{
+    const req = indexedDB.open('vocalcue_db', 1);
+    req.onupgradeneeded = (e)=>{
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains('blobs')) db.createObjectStore('blobs');
+      if(!db.objectStoreNames.contains('meta')) db.createObjectStore('meta');
+    };
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+  return dbPromise;
+}
+async function idbPut(store, key, value){
+  const db = await openDb();
+  return new Promise((resolve,reject)=>{
+    const tx = db.transaction(store,'readwrite');
+    tx.objectStore(store).put(value, key);
+    tx.oncomplete = ()=>resolve();
+    tx.onerror = ()=>reject(tx.error);
+  });
+}
+async function idbGet(store, key){
+  const db = await openDb();
+  return new Promise((resolve,reject)=>{
+    const tx = db.transaction(store,'readonly');
+    const r = tx.objectStore(store).get(key);
+    r.onsuccess = ()=>resolve(r.result);
+    r.onerror = ()=>reject(r.error);
+  });
+}
+async function idbDelete(store, key){
+  const db = await openDb();
+  return new Promise((resolve,reject)=>{
+    const tx = db.transaction(store,'readwrite');
+    tx.objectStore(store).delete(key);
+    tx.oncomplete = ()=>resolve();
+    tx.onerror = ()=>reject(tx.error);
+  });
+}
+async function idbAllKeys(store){
+  const db = await openDb();
+  return new Promise((resolve,reject)=>{
+    const tx = db.transaction(store,'readonly');
+    const r = tx.objectStore(store).getAllKeys();
+    r.onsuccess = ()=>resolve(r.result);
+    r.onerror = ()=>reject(r.error);
+  });
+}
+
+// ---------- Directory handle (File System Access API) ----------
+async function persistDirHandle(handle){
+  await idbPut('meta', 'dirHandle', handle);
+}
+async function restoreDirHandle(){
+  if(!fsApiSupported) return null;
+  try{
+    const handle = await idbGet('meta', 'dirHandle');
+    if(!handle) return null;
+    const perm = await handle.queryPermission({mode:'readwrite'});
+    if(perm === 'granted'){ dirHandle = handle; return handle; }
+    dirHandle = handle;
+    return handle;
+  }catch(e){ return null; }
+}
+async function ensureDirPermission(){
+  if(!dirHandle) return false;
+  let perm = await dirHandle.queryPermission({mode:'readwrite'});
+  if(perm !== 'granted'){
+    perm = await dirHandle.requestPermission({mode:'readwrite'});
+  }
+  return perm === 'granted';
+}
+async function getProjectDirHandle(project, create){
+  if(!dirHandle || !project) return null;
+  const ok = await ensureDirPermission();
+  if(!ok) return null;
+  try{
+    return await dirHandle.getDirectoryHandle(project.name, {create: !!create});
+  }catch(e){ return null; }
+}
+
+el('btn-set-folder').addEventListener('click', async ()=>{
+  if(!fsApiSupported){
+    showToast('Il tuo browser non supporta questa funzione. Usa "Mantieni in memoria" come alternativa.');
+    return;
+  }
+  try{
+    const handle = await window.showDirectoryPicker({mode:'readwrite'});
+    dirHandle = handle;
+    await persistDirHandle(handle);
+    updateStorageStatus();
+    showToast('Cartella impostata: ' + handle.name);
+  }catch(e){ /* annullato dall'utente */ }
+});
+
+function updateStorageStatus(){
+  const pill = el('storage-pill');
+  const status = el('folder-status');
+  if(fsApiSupported && dirHandle){
+    pill.textContent = 'Cartella: ' + dirHandle.name;
+    status.textContent = 'I file audio caricati vengono salvati automaticamente in una sottocartella per ogni progetto.';
+  } else if(fsApiSupported){
+    pill.textContent = 'Nessuna cartella impostata';
+    status.textContent = 'Imposta una cartella per salvare i file automaticamente, oppure usa "Mantieni in memoria".';
+  } else {
+    pill.textContent = 'Selezione manuale dei file';
+    status.textContent = 'Questo browser (tipico di Android e iPhone) non supporta il salvataggio automatico in cartella. Copia i file manualmente nella cartella VocalCue — anche su Google Drive, se vuoi tenerli sincronizzati tra dispositivi — e selezionali quando richiesto, oppure usa "Mantieni in memoria".';
+    el('folder-row').classList.add('hidden');
+  }
+}
+
+// ---------- Helpers: progetto / traccia correnti ----------
+function getCurrentProject(){
+  return config.projects.find(p=>p.id === currentProjectId) || null;
+}
+function getCurrentTrack(){
+  const project = getCurrentProject();
+  if(!project) return null;
+  return project.tracks.find(t=>t.id === currentTrackId) || null;
+}
+
+// ---------- Rendering: progetti ----------
+function renderProjectSelect(){
+  const sel = el('project-select');
+  sel.innerHTML = '<option value="">— Nessun progetto selezionato —</option>';
+  config.projects.forEach(p=>{
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.name;
+    if(p.id === currentProjectId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  const hasProject = !!getCurrentProject();
+  el('track-section').classList.toggle('hidden', !hasProject);
+  el('add-track-section').classList.toggle('hidden', !hasProject);
+  if(!hasProject){
+    el('player-section').classList.add('hidden');
+    el('markers-section').classList.add('hidden');
+  }
+}
+
+el('btn-add-project').addEventListener('click', ()=>{
+  const name = prompt('Nome del nuovo progetto (es. "Musical classe A", "Coro giovedì"):');
+  if(!name || !name.trim()) return;
+  const project = { id: uid(), name: name.trim(), tracks: [] };
+  config.projects.push(project);
+  currentProjectId = project.id;
+  currentTrackId = null;
+  saveConfig();
+  renderProjectSelect();
+  renderTrackSelect();
+});
+
+el('project-select').addEventListener('change', (e)=>{
+  currentProjectId = e.target.value || null;
+  currentTrackId = null;
+  renderProjectSelect();
+  renderTrackSelect();
+  el('player-section').classList.add('hidden');
+  el('markers-section').classList.add('hidden');
+});
+
+el('btn-rename-project').addEventListener('click', ()=>{
+  const project = getCurrentProject();
+  if(!project){ showToast('Seleziona prima un progetto.'); return; }
+  const newName = prompt('Nuovo nome per il progetto:', project.name);
+  if(newName && newName.trim()){
+    project.name = newName.trim();
+    saveConfig();
+    renderProjectSelect();
+  }
+});
+
+el('btn-delete-project').addEventListener('click', async ()=>{
+  const project = getCurrentProject();
+  if(!project){ showToast('Seleziona prima un progetto.'); return; }
+  if(!confirm('Eliminare il progetto "'+project.name+'" con tutte le sue tracce e marcatori?')) return;
+
+  for(const track of project.tracks){
+    if(track.storedInBrowser){
+      await idbDelete('blobs', track.id);
+    }
+  }
+  config.projects = config.projects.filter(p=>p.id !== project.id);
+  currentProjectId = null;
+  currentTrackId = null;
+  saveConfig();
+  renderProjectSelect();
+  renderTrackSelect();
+  showToast('Progetto eliminato. Il file nella cartella sul dispositivo, se presente, non è stato toccato automaticamente.');
+});
+
+// ---------- Rendering: tracce ----------
+function renderTrackSelect(){
+  const sel = el('track-select');
+  sel.innerHTML = '<option value="">— Nessuna traccia selezionata —</option>';
+  const project = getCurrentProject();
+  if(!project) return;
+  project.tracks.forEach(t=>{
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    let label = t.name;
+    if(t.type === 'file') label += '  (' + t.fileName + ')';
+    else label += '  (YouTube)';
+    opt.textContent = label;
+    if(t.id === currentTrackId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function renderMarkers(){
+  const track = getCurrentTrack();
+  const list = el('marker-list');
+  const empty = el('markers-empty');
+  list.innerHTML = '';
+  if(!track || !track.markers || track.markers.length === 0){
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  const sorted = [...track.markers].sort((a,b)=>a.time-b.time);
+  sorted.forEach(m=>{
+    const li = document.createElement('li');
+
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'marker-time';
+    timeSpan.textContent = fmtTime(m.time);
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'marker-label';
+    labelSpan.textContent = m.label;
+    labelSpan.style.cursor = 'pointer';
+    labelSpan.title = 'Tocca per riprodurre da qui';
+    labelSpan.addEventListener('click', ()=> seekTo(m.time));
+
+    const actions = document.createElement('div');
+    actions.className = 'marker-actions';
+
+    const renameBtn = document.createElement('button');
+    renameBtn.className = 'small ghost';
+    renameBtn.textContent = 'Rinomina';
+    renameBtn.addEventListener('click', ()=>{
+      const newLabel = prompt('Nuova etichetta per il marcatore:', m.label);
+      if(newLabel && newLabel.trim()){
+        m.label = newLabel.trim();
+        saveConfig();
+        renderMarkers();
+      }
+    });
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'small danger';
+    delBtn.textContent = 'Elimina';
+    delBtn.addEventListener('click', ()=>{
+      if(confirm('Eliminare il marcatore "'+m.label+'"?')){
+        track.markers = track.markers.filter(x=>x.id !== m.id);
+        saveConfig();
+        renderMarkers();
+      }
+    });
+
+    actions.appendChild(renameBtn);
+    actions.appendChild(delBtn);
+
+    li.appendChild(timeSpan);
+    li.appendChild(labelSpan);
+    li.appendChild(actions);
+    list.appendChild(li);
+  });
+}
+
+// ---------- Tabs (file / youtube) ----------
+el('tab-file').addEventListener('click', ()=>{
+  el('tab-file').classList.add('active');
+  el('tab-youtube').classList.remove('active');
+  el('panel-file').classList.remove('hidden');
+  el('panel-youtube').classList.add('hidden');
+});
+el('tab-youtube').addEventListener('click', ()=>{
+  el('tab-youtube').classList.add('active');
+  el('tab-file').classList.remove('active');
+  el('panel-youtube').classList.remove('hidden');
+  el('panel-file').classList.add('hidden');
+});
+
+// ---------- Add file track ----------
+el('btn-add-file-track').addEventListener('click', async ()=>{
+  const project = getCurrentProject();
+  if(!project){ showToast('Seleziona o crea prima un progetto.'); return; }
+  const input = el('audio-file-input');
+  const file = input.files[0];
+  if(!file){ showToast('Seleziona prima un file audio.'); return; }
+  const keepInBrowser = el('keep-in-browser').checked;
+
+  const defaultName = file.name.replace(/\.[^/.]+$/, '');
+  const trackName = prompt('Nome per questa traccia:', defaultName) || defaultName;
+
+  const track = {
+    id: uid(),
+    name: trackName,
+    type: 'file',
+    fileName: file.name,
+    markers: [],
+    storedInBrowser: false
+  };
+
+  if(fsApiSupported && dirHandle){
+    try{
+      const projDir = await getProjectDirHandle(project, true);
+      if(projDir){
+        const fh = await projDir.getFileHandle(file.name, {create:true});
+        const writable = await fh.createWritable();
+        await writable.write(file);
+        await writable.close();
+        showToast('File salvato nella cartella del progetto.');
+      }
+    }catch(e){ showToast('Non è stato possibile scrivere nella cartella: ' + e.message); }
+  }
+
+  if(keepInBrowser){
+    await storeBlobWithLimit(track.id, file, trackName);
+    track.storedInBrowser = true;
+  }
+
+  project.tracks.push(track);
+  saveConfig();
+  currentTrackId = track.id;
+  renderTrackSelect();
+  await loadTrackIntoPlayer(track, file);
+  input.value = '';
+  el('keep-in-browser').checked = false;
+});
+
+async function storeBlobWithLimit(trackId, file, trackName){
+  const keys = await idbAllKeys('blobs');
+  if(keys.length >= MAX_BROWSER_FILES && !keys.includes(trackId)){
+    const toEvict = await pickBlobToEvict(keys);
+    if(toEvict === null) return false;
+    await idbDelete('blobs', toEvict);
+    for(const p of config.projects){
+      const evictedTrack = p.tracks.find(t=>t.id === toEvict);
+      if(evictedTrack) evictedTrack.storedInBrowser = false;
+    }
+  }
+  await idbPut('blobs', trackId, { blob:file, name:trackName, fileName:file.name, savedAt: Date.now(), size:file.size });
+  saveConfig();
+  return true;
+}
+
+function findTrackById(trackId){
+  for(const p of config.projects){
+    const t = p.tracks.find(tt=>tt.id === trackId);
+    if(t) return t;
+  }
+  return null;
+}
+
+function pickBlobToEvict(keys){
+  return new Promise(async (resolve)=>{
+    const root = el('modal-root');
+    const items = [];
+    for(const k of keys){
+      const rec = await idbGet('blobs', k);
+      const t = findTrackById(k);
+      items.push({ key:k, name: (t ? t.name : (rec && rec.name) || k), size: rec ? rec.size : 0, savedAt: rec ? rec.savedAt : 0 });
+    }
+    const modal = document.createElement('div');
+    modal.className = 'modal-backdrop';
+    modal.innerHTML = `
+      <div class="modal">
+        <h3>Limite di 5 file raggiunto</h3>
+        <p>Scegli quale file rimuovere dalla memoria del browser per fare spazio al nuovo.</p>
+        <ul id="evict-list"></ul>
+        <button class="ghost" id="evict-cancel">Annulla</button>
+      </div>`;
+    root.appendChild(modal);
+    const list = modal.querySelector('#evict-list');
+    items.forEach(it=>{
+      const li = document.createElement('li');
+      const sizeKb = Math.round(it.size/1024);
+      const date = it.savedAt ? new Date(it.savedAt).toLocaleDateString('it-IT') : '';
+      li.innerHTML = `<span>${it.name} — ${sizeKb} KB — ${date}</span>`;
+      const btn = document.createElement('button');
+      btn.className = 'small danger';
+      btn.textContent = 'Rimuovi questo';
+      btn.addEventListener('click', ()=>{
+        root.removeChild(modal);
+        resolve(it.key);
+      });
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+    modal.querySelector('#evict-cancel').addEventListener('click', ()=>{
+      root.removeChild(modal);
+      resolve(null);
+    });
+  });
+}
+
+// ---------- Add YouTube track ----------
+function extractYoutubeId(url){
+  const patterns = [
+    /youtu\.be\/([^?&]+)/,
+    /[?&]v=([^?&]+)/,
+    /youtube\.com\/embed\/([^?&]+)/
+  ];
+  for(const p of patterns){
+    const m = url.match(p);
+    if(m) return m[1];
+  }
+  return null;
+}
+
+el('btn-add-youtube-track').addEventListener('click', ()=>{
+  const project = getCurrentProject();
+  if(!project){ showToast('Seleziona o crea prima un progetto.'); return; }
+  const url = el('youtube-url-input').value.trim();
+  const vid = extractYoutubeId(url);
+  if(!vid){ showToast('Link YouTube non valido.'); return; }
+  const trackName = prompt('Nome per questa traccia:', 'Base YouTube') || 'Base YouTube';
+  const track = {
+    id: uid(),
+    name: trackName,
+    type: 'youtube',
+    youtubeId: vid,
+    markers: []
+  };
+  project.tracks.push(track);
+  saveConfig();
+  currentTrackId = track.id;
+  renderTrackSelect();
+  loadTrackIntoPlayer(track);
+  el('youtube-url-input').value = '';
+});
+
+// ---------- Track selection ----------
+el('track-select').addEventListener('change', async (e)=>{
+  const id = e.target.value;
+  if(!id){ currentTrackId = null; el('player-section').classList.add('hidden'); el('markers-section').classList.add('hidden'); return; }
+  const project = getCurrentProject();
+  const track = project.tracks.find(t=>t.id === id);
+  currentTrackId = id;
+  await loadTrackIntoPlayer(track);
+});
+
+el('btn-rename-track').addEventListener('click', ()=>{
+  const track = getCurrentTrack();
+  if(!track){ showToast('Seleziona prima una traccia.'); return; }
+  const newName = prompt('Nuovo nome per la traccia:', track.name);
+  if(newName && newName.trim()){
+    track.name = newName.trim();
+    saveConfig();
+    renderTrackSelect();
+  }
+});
+
+el('btn-delete-track').addEventListener('click', async ()=>{
+  const project = getCurrentProject();
+  const track = getCurrentTrack();
+  if(!track){ showToast('Seleziona prima una traccia.'); return; }
+  if(!confirm('Eliminare la traccia "'+track.name+'" e tutti i suoi marcatori?')) return;
+
+  if(track.type === 'file' && fsApiSupported && dirHandle){
+    const alsoDeleteFile = confirm('Vuoi eliminare anche il file audio dalla cartella sul dispositivo?\n\nOK = elimina anche il file\nAnnulla = mantieni solo il file, rimuovi solo dall\'elenco');
+    if(alsoDeleteFile){
+      try{
+        const projDir = await getProjectDirHandle(project, false);
+        if(projDir) await projDir.removeEntry(track.fileName);
+      }catch(e){ /* file forse già assente */ }
+    }
+  }
+  if(track.storedInBrowser){
+    await idbDelete('blobs', track.id);
+  }
+  project.tracks = project.tracks.filter(t=>t.id !== track.id);
+  currentTrackId = null;
+  saveConfig();
+  renderTrackSelect();
+  el('player-section').classList.add('hidden');
+  el('markers-section').classList.add('hidden');
+  showToast('Traccia eliminata.');
+});
+
+// ---------- Player loading ----------
+async function loadTrackIntoPlayer(track, directFile){
+  el('player-section').classList.remove('hidden');
+  el('markers-section').classList.remove('hidden');
+  renderMarkers();
+
+  if(track.type === 'youtube'){
+    el('audio-player-box').classList.add('hidden');
+    el('yt-player-box').classList.remove('hidden');
+    loadYoutube(track.youtubeId);
+    return;
+  }
+
+  el('yt-player-box').classList.add('hidden');
+  el('audio-player-box').classList.remove('hidden');
+  const audio = el('audio-player');
+  const project = getCurrentProject();
+
+  let fileToPlay = directFile || null;
+
+  if(!fileToPlay && fsApiSupported && dirHandle && project){
+    try{
+      const projDir = await getProjectDirHandle(project, false);
+      if(projDir){
+        const fh = await projDir.getFileHandle(track.fileName);
+        fileToPlay = await fh.getFile();
+      }
+    }catch(e){ /* file non trovato nella cartella */ }
+  }
+
+  if(!fileToPlay && track.storedInBrowser){
+    try{
+      const rec = await idbGet('blobs', track.id);
+      if(rec && rec.blob) fileToPlay = rec.blob;
+    }catch(e){ /* ignora */ }
+  }
+
+  if(!fileToPlay){
+    promptManualFile(track);
+    return;
+  }
+
+  if(currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+  currentObjectUrl = URL.createObjectURL(fileToPlay);
+  audio.src = currentObjectUrl;
+}
+
+function promptManualFile(track){
+  const audio = el('audio-player');
+  audio.removeAttribute('src');
+  showToast('Seleziona il file "' + track.fileName + '" dalla cartella VocalCue per riprodurlo.');
+  const tempInput = document.createElement('input');
+  tempInput.type = 'file';
+  tempInput.accept = 'audio/*';
+  tempInput.addEventListener('change', ()=>{
+    const f = tempInput.files[0];
+    if(f){
+      if(currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+      currentObjectUrl = URL.createObjectURL(f);
+      audio.src = currentObjectUrl;
+      audio.play().catch(()=>{});
+    }
+  });
+  tempInput.click();
+}
+
+// ---------- YouTube IFrame API ----------
+function loadYoutubeApiScript(){
+  if(window.YT && window.YT.Player){ ytReady = true; return; }
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+}
+window.onYouTubeIframeAPIReady = function(){
+  ytReady = true;
+  if(pendingYtId) loadYoutube(pendingYtId);
+};
+let pendingYtId = null;
+function loadYoutube(videoId){
+  if(!ytReady){ pendingYtId = videoId; loadYoutubeApiScript(); return; }
+  if(ytPlayer){
+    ytPlayer.loadVideoById(videoId);
+    return;
+  }
+  ytPlayer = new YT.Player('yt-player', {
+    videoId: videoId,
+    playerVars: { rel: 0 },
+    events: {}
+  });
+}
+
+// ---------- Time readout ----------
+function getCurrentTime(){
+  const track = getCurrentTrack();
+  if(!track) return 0;
+  if(track.type === 'youtube'){
+    return (ytPlayer && ytPlayer.getCurrentTime) ? ytPlayer.getCurrentTime() : 0;
+  }
+  return el('audio-player').currentTime || 0;
+}
+function seekTo(time){
+  const track = getCurrentTrack();
+  if(!track) return;
+  if(track.type === 'youtube'){
+    if(ytPlayer && ytPlayer.seekTo){ ytPlayer.seekTo(time, true); ytPlayer.playVideo(); }
+  } else {
+    const audio = el('audio-player');
+    audio.currentTime = time;
+    audio.play().catch(()=>{});
+  }
+}
+setInterval(()=>{
+  if(!el('player-section').classList.contains('hidden')){
+    el('time-readout').textContent = fmtTime(getCurrentTime());
+  }
+}, 500);
+
+// ---------- Add marker ----------
+el('btn-add-marker').addEventListener('click', ()=>{
+  const track = getCurrentTrack();
+  if(!track){ showToast('Seleziona prima una traccia.'); return; }
+  const time = getCurrentTime();
+  const label = prompt('Etichetta per questo marcatore:', fmtTime(time)) || fmtTime(time);
+  track.markers = track.markers || [];
+  track.markers.push({ id: uid(), label: label.trim(), time });
+  saveConfig();
+  renderMarkers();
+});
+
+// ---------- Export / Import ----------
+el('btn-export').addEventListener('click', ()=>{
+  const data = JSON.stringify({ projects: config.projects }, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'vocalcue-config.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+el('btn-import').addEventListener('click', ()=> el('import-file-input').click());
+el('import-file-input').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if(!parsed.projects || !Array.isArray(parsed.projects)) throw new Error('Formato non valido');
+    const mode = confirm('Importare sostituendo la configurazione attuale?\n\nOK = sostituisci tutto\nAnnulla = aggiungi ai progetti esistenti');
+    if(mode){
+      config.projects = parsed.projects;
+    } else {
+      parsed.projects.forEach(p=>{
+        p.id = uid();
+        p.tracks.forEach(t=>{ t.id = uid(); });
+        config.projects.push(p);
+      });
+    }
+    currentProjectId = null;
+    currentTrackId = null;
+    saveConfig();
+    renderProjectSelect();
+    renderTrackSelect();
+    showToast('Configurazione importata.');
+  }catch(err){
+    showToast('File di configurazione non valido.');
+  }
+  e.target.value = '';
+});
+
+// ---------- Init ----------
+async function init(){
+  loadConfig();
+  await restoreDirHandle();
+  updateStorageStatus();
+  renderProjectSelect();
+  renderTrackSelect();
+}
+init();
+
+})();
+</script>
+</body>
+</html>
