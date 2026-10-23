@@ -275,6 +275,12 @@
   details .inst-body{ margin-top:12px; font-size: 0.88rem; line-height:1.55; color: var(--text); }
   details .inst-body h3{ font-size:0.85rem; color:var(--accent-2); margin: 14px 0 4px; }
   details .inst-body ol, details .inst-body ul{ padding-left: 20px; margin: 4px 0; }
+  .version-tag{
+    margin-top: 18px;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    opacity: 0.6;
+  }
   details .inst-body code{
     background: var(--bg-deep);
     padding: 1px 5px;
@@ -481,6 +487,7 @@
 
         <h3>7. Link YouTube</h3>
         <p>Per una base karaoke da YouTube, incolla il link: il video resta visibile nella pagina (è un requisito di YouTube), ma puoi comunque segnare punti precisi e farli ripartire da lì come con un file audio.</p>
+        <p class="version-tag">Versione: 1.0.20261023160823</p>
       </div>
     </details>
   </section>
@@ -1038,6 +1045,16 @@ function promptManualFile(track){
   showToast('Seleziona il file "' + track.fileName + '" dalla cartella VocalCue per riprodurlo.');
   const tempInput = document.createElement('input');
   tempInput.type = 'file';
+  // Deve essere parte della pagina (anche se invisibile): alcuni browser,
+  // in particolare su iOS, non aprono il selettore per elementi non collegati al documento.
+  tempInput.style.position = 'fixed';
+  tempInput.style.top = '-9999px';
+  tempInput.style.left = '-9999px';
+  document.body.appendChild(tempInput);
+
+  function cleanup(){
+    if(tempInput.parentNode) tempInput.parentNode.removeChild(tempInput);
+  }
 
   tempInput.addEventListener('change', ()=>{
     const f = tempInput.files[0];
@@ -1047,7 +1064,9 @@ function promptManualFile(track){
       audio.src = currentObjectUrl;
       audio.play().catch(()=>{});
     }
+    cleanup();
   });
+  tempInput.addEventListener('cancel', cleanup);
   tempInput.click();
 }
 
