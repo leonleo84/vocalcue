@@ -377,31 +377,6 @@
     </div>
   </section>
 
-  <section id="add-track-section" class="hidden">
-    <h2>Aggiungi una nuova traccia al progetto</h2>
-    <div class="tabs">
-      <button id="tab-file" class="active">File audio</button>
-      <button id="tab-youtube">Link YouTube</button>
-    </div>
-
-    <div id="panel-file">
-      <input type="file" id="audio-file-input" class="hidden">
-      <button type="button" class="primary file-picker-btn" id="btn-open-file-picker">Scegli file audio</button>
-      <p class="filename-hint" id="selected-file-name">Nessun file selezionato</p>
-      <div class="checkbox-row">
-        <input type="checkbox" id="keep-in-browser">
-        <label for="keep-in-browser" style="margin:0;">Mantieni in memoria su questo dispositivo (max 5 file, in totale)</label>
-      </div>
-      <button class="primary" id="btn-add-file-track">Aggiungi traccia da file</button>
-    </div>
-
-    <div id="panel-youtube" class="hidden">
-      <label for="youtube-url-input">Incolla il link YouTube</label>
-      <input type="url" id="youtube-url-input" placeholder="https://www.youtube.com/watch?v=...">
-      <button class="primary" id="btn-add-youtube-track">Aggiungi traccia da YouTube</button>
-    </div>
-  </section>
-
   <section id="player-section" class="hidden">
     <h2>Riproduzione</h2>
     <div class="player-box">
@@ -433,6 +408,31 @@
     <h2>Marcatori</h2>
     <ul class="marker-list" id="marker-list"></ul>
     <p class="empty-note hidden" id="markers-empty">Nessun marcatore ancora. Riproduci la traccia e tocca "Segna questo punto".</p>
+  </section>
+
+  <section id="add-track-section" class="hidden">
+    <h2>Aggiungi una nuova traccia al progetto</h2>
+    <div class="tabs">
+      <button id="tab-file" class="active">File audio</button>
+      <button id="tab-youtube">Link YouTube</button>
+    </div>
+
+    <div id="panel-file">
+      <input type="file" id="audio-file-input" class="hidden">
+      <button type="button" class="primary file-picker-btn" id="btn-open-file-picker">Scegli file audio</button>
+      <p class="filename-hint" id="selected-file-name">Nessun file selezionato</p>
+      <div class="checkbox-row">
+        <input type="checkbox" id="keep-in-browser">
+        <label for="keep-in-browser" style="margin:0;">Mantieni in memoria su questo dispositivo (max 5 file, in totale)</label>
+      </div>
+      <button class="primary" id="btn-add-file-track">Aggiungi traccia da file</button>
+    </div>
+
+    <div id="panel-youtube" class="hidden">
+      <label for="youtube-url-input">Incolla il link YouTube</label>
+      <input type="url" id="youtube-url-input" placeholder="https://www.youtube.com/watch?v=...">
+      <button class="primary" id="btn-add-youtube-track">Aggiungi traccia da YouTube</button>
+    </div>
   </section>
 
   <section>
