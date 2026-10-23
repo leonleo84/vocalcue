@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>VocalCue</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%231a0a0d'/%3E%3Ccircle cx='32' cy='32' r='27' fill='%23512230'/%3E%3Cpath d='M25 19v26l20-13z' fill='%23f2c531'/%3E%3C/svg%3E">
 <style>
   :root{
     --bg: #230e13;
@@ -295,6 +296,13 @@
     margin-bottom:10px;
   }
   .checkbox-row input{ width:auto; margin:0; }
+  .file-picker-btn{
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  #selected-file-name{
+    margin-top: 0;
+  }
   .project-bar{
     display:flex;
     gap:8px;
@@ -348,8 +356,9 @@
     </div>
 
     <div id="panel-file">
-      <label for="audio-file-input">Seleziona file audio</label>
-      <input type="file" id="audio-file-input" accept="audio/*">
+      <input type="file" id="audio-file-input" accept="audio/*" class="hidden">
+      <button type="button" class="primary file-picker-btn" id="btn-open-file-picker">Scegli file audio</button>
+      <p class="filename-hint" id="selected-file-name">Nessun file selezionato</p>
       <div class="checkbox-row">
         <input type="checkbox" id="keep-in-browser">
         <label for="keep-in-browser" style="margin:0;">Mantieni in memoria su questo dispositivo (max 5 file, in totale)</label>
@@ -411,16 +420,17 @@
       <summary>Istruzioni</summary>
       <div class="inst-body">
         <h3>0. Mettere VocalCue comodamente sul telefono</h3>
-        <p>Apri l'indirizzo web di VocalCue nel browser del telefono, poi aggiungilo alla schermata Home per usarlo come una vera app.</p>
-        <p><strong>Android (Chrome):</strong> apri il link, tocca i tre puntini in alto a destra, scegli "Aggiungi a schermata Home". Da quel momento avrai un'icona che apre l'app a schermo intero.</p>
-        <p><strong>iPhone (Safari):</strong> apri il link in Safari, tocca l'icona di condivisione in basso, scorri e scegli "Aggiungi a Home".</p>
+        <p>Apri l'indirizzo web di VocalCue nel browser del telefono, poi aggiungilo alla schermata Home per usarlo come una vera app. La procedura è simile su qualunque browser — qui sotto trovi Chrome e Safari solo come esempio, ma funziona allo stesso modo anche con altri browser (es. Firefox, Edge, Samsung Internet).</p>
+        <p><strong>Android:</strong> apri il link, tocca i tre puntini (o il menu del browser), scegli "Aggiungi a schermata Home". Da quel momento avrai un'icona che apre l'app a schermo intero.</p>
+        <p><strong>iPhone:</strong> apri il link nel browser, tocca l'icona di condivisione, scorri e scegli "Aggiungi a Home".</p>
 
         <h3>1. Progetti</h3>
         <p>Un progetto raccoglie le canzoni di un corso, una classe o un musical specifico (es. "Musical classe A", "Coro del giovedì"). Crea un progetto, poi aggiungi al suo interno tutte le tracce che ti servono per quel gruppo. Puoi passare da un progetto all'altro dal menu in alto in qualsiasi momento.</p>
 
         <h3>2. La cartella VocalCue</h3>
-        <p>Crea una cartella chiamata <code>VocalCue</code> sul tuo dispositivo (o dentro Google Drive, se vuoi tenerla sincronizzata tra più dispositivi): lì terrai tutti i file audio usati nell'app.</p>
+        <p>Non è un requisito tecnico dell'app — puoi tenere i file audio ovunque preferisci — ma ti consigliamo di creare un'unica cartella dedicata, chiamata ad esempio <code>VocalCue</code>, sul tuo dispositivo (o dentro Google Drive, se vuoi tenerla sincronizzata tra più dispositivi). Avere tutti i file in un solo posto rende molto più veloce ritrovarli ogni volta che l'app te li richiede, invece di doverli cercare tra cartelle diverse.</p>
         <p>Su qualsiasi piattaforma — computer, Android o iPhone — il funzionamento è lo stesso: copia prima il file audio nella cartella VocalCue, poi selezionalo dall'app quando richiesto. Il nome del file atteso è sempre indicato accanto al nome della traccia nel menu a tendina, così sai sempre quale cercare.</p>
+        <p><strong>Selezionare un file da Google Drive su iPhone:</strong> se Drive non compare nella schermata di selezione, apri l'app File di iOS, tocca "Sfoglia" in basso, poi i tre puntini (o "Modifica") in alto a destra e attiva l'interruttore accanto a "Google Drive" — da quel momento resterà visibile ogni volta che scegli un file, anche da VocalCue. Serve avere l'app Google Drive installata e l'accesso effettuato con il proprio account.</p>
 
         <h3>3. Marcatori</h3>
         <p>Metti in pausa la traccia nel punto che vuoi memorizzare e tocca "Segna questo punto": ti verrà chiesta un'etichetta (es. "Ritornello"). Tocca il pulsante play accanto a un marcatore nella lista per far ripartire la traccia esattamente da lì. Ogni marcatore può essere rinominato o eliminato singolarmente.</p>
@@ -722,6 +732,15 @@ function renderMarkers(){
   });
 }
 
+// ---------- Pulsante "Scegli file audio" ----------
+el('btn-open-file-picker').addEventListener('click', ()=>{
+  el('audio-file-input').click();
+});
+el('audio-file-input').addEventListener('change', (e)=>{
+  const f = e.target.files[0];
+  el('selected-file-name').textContent = f ? ('File selezionato: ' + f.name) : 'Nessun file selezionato';
+});
+
 // ---------- Tabs (file / youtube) ----------
 el('tab-file').addEventListener('click', ()=>{
   el('tab-file').classList.add('active');
@@ -790,6 +809,7 @@ el('btn-add-file-track').addEventListener('click', async ()=>{
     setButtonLoading(btn, true, 'Caricamento traccia…');
     await loadTrackIntoPlayer(track, file);
     input.value = '';
+    el('selected-file-name').textContent = 'Nessun file selezionato';
     el('keep-in-browser').checked = false;
   } finally {
     setButtonLoading(btn, false);
