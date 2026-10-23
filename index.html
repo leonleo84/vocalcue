@@ -3,13 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <script>
-// Forza un ricaricamento con URL "sempre diverso" per evitare che iOS mostri
-// una copia vecchia della pagina quando l'app viene aperta dalla schermata Home.
+// Forza un ricaricamento con URL "sempre diverso" per evitare che il telefono mostri
+// una copia vecchia della pagina, sia alla prima apertura sia a ogni refresh successivo.
+// Il controllo sui 2 secondi evita un ciclo infinito di ricaricamenti: dopo essere stati
+// appena reindirizzati, la pagina è comunque già fresca e non serve rifarlo subito.
 (function(){
   try{
     var params = new URLSearchParams(window.location.search);
-    if(!params.has('vc')){
-      params.set('vc', Date.now());
+    var vc = parseInt(params.get('vc'), 10);
+    var now = Date.now();
+    if(!vc || (now - vc) > 2000){
+      params.set('vc', now);
       var newUrl = window.location.pathname + '?' + params.toString() + window.location.hash;
       window.location.replace(newUrl);
     }
