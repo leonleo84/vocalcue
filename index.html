@@ -385,7 +385,7 @@
     </div>
 
     <div id="panel-file">
-      <input type="file" id="audio-file-input" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.flac,.aiff" class="hidden">
+      <input type="file" id="audio-file-input" class="hidden">
       <button type="button" class="primary file-picker-btn" id="btn-open-file-picker">Scegli file audio</button>
       <p class="filename-hint" id="selected-file-name">Nessun file selezionato</p>
       <div class="checkbox-row">
@@ -460,6 +460,7 @@
         <p>Non è un requisito tecnico dell'app — puoi tenere i file audio ovunque preferisci — ma ti consigliamo di creare un'unica cartella dedicata, chiamata ad esempio <code>VocalCue</code>, sul tuo dispositivo (o dentro Google Drive, se vuoi tenerla sincronizzata tra più dispositivi). Avere tutti i file in un solo posto rende molto più veloce ritrovarli ogni volta che l'app te li richiede, invece di doverli cercare tra cartelle diverse.</p>
         <p>Su qualsiasi piattaforma — computer, Android o iPhone — il funzionamento è lo stesso: copia prima il file audio nella cartella VocalCue, poi selezionalo dall'app quando richiesto. Il nome del file atteso è sempre indicato accanto al nome della traccia nel menu a tendina, così sai sempre quale cercare.</p>
         <p><strong>Selezionare un file da Google Drive su iPhone:</strong> se Drive non compare nella schermata di selezione, apri l'app File di iOS, tocca "Sfoglia" in basso, poi i tre puntini (o "Modifica") in alto a destra e attiva l'interruttore accanto a "Google Drive" — da quel momento resterà visibile ogni volta che scegli un file, anche da VocalCue. Serve avere l'app Google Drive installata e l'accesso effettuato con il proprio account.</p>
+        <p><strong>Nota:</strong> il selettore di file mostra tutti i file, non solo quelli che il telefono riconosce come audio — questo evita che alcuni mp3 (specialmente quelli scaricati con convertitori online) risultino erroneamente non selezionabili. Scegli comunque il file audio giusto: se per errore ne scegli uno non riproducibile, l'app te lo segnala.</p>
 
         <h3>3. Marcatori</h3>
         <p>Metti in pausa la traccia nel punto che vuoi memorizzare e tocca "Segna questo punto": ti verrà chiesta un'etichetta (es. "Ritornello"). Tocca il pulsante play accanto a un marcatore nella lista per far ripartire la traccia esattamente da lì. Ogni marcatore può essere rinominato o eliminato singolarmente.</p>
@@ -1033,7 +1034,7 @@ function promptManualFile(track){
   showToast('Seleziona il file "' + track.fileName + '" dalla cartella VocalCue per riprodurlo.');
   const tempInput = document.createElement('input');
   tempInput.type = 'file';
-  tempInput.accept = 'audio/*,.mp3,.m4a,.wav,.aac,.ogg,.flac,.aiff';
+
   tempInput.addEventListener('change', ()=>{
     const f = tempInput.files[0];
     if(f){
@@ -1204,6 +1205,12 @@ el('import-file-input').addEventListener('change', async (e)=>{
 });
 
 // ---------- Init ----------
+el('audio-player').addEventListener('error', ()=>{
+  if(el('audio-player').getAttribute('src')){
+    showToast('Questo file non sembra un audio valido o riproducibile. Riprova a scegliere il file corretto.', 4500);
+  }
+});
+
 async function init(){
   loadConfig();
   renderProjectSelect();
