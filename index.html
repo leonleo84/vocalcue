@@ -170,6 +170,14 @@
     font-weight:600;
   }
   .hidden{ display:none !important; }
+  .offscreen-file-input{
+    position: fixed;
+    top: -9999px;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
   .player-box{
     background: var(--bg-deep);
     border-radius: 8px;
@@ -396,6 +404,11 @@
       <div id="yt-player-box" class="hidden">
         <div id="yt-player-container"><div id="yt-player"></div></div>
       </div>
+      <div id="manual-select-box" class="hidden">
+        <p class="filename-hint" id="manual-select-hint"></p>
+        <button type="button" class="primary file-picker-btn" id="btn-manual-select">Seleziona file audio</button>
+        <input type="file" id="manual-reselect-input" class="offscreen-file-input">
+      </div>
     </div>
     <div class="time-readout" id="time-readout">00:00</div>
     <div class="row fine-seek-row">
@@ -428,7 +441,7 @@
     </div>
 
     <div id="panel-file">
-      <input type="file" id="audio-file-input" class="hidden">
+      <input type="file" id="audio-file-input" class="offscreen-file-input">
       <button type="button" class="primary file-picker-btn" id="btn-open-file-picker">Scegli file audio</button>
       <p class="filename-hint" id="selected-file-name">Nessun file selezionato</p>
       <div class="checkbox-row">
@@ -487,7 +500,8 @@
 
         <h3>7. Link YouTube</h3>
         <p>Per una base karaoke da YouTube, incolla il link: il video resta visibile nella pagina (è un requisito di YouTube), ma puoi comunque segnare punti precisi e farli ripartire da lì come con un file audio.</p>
-        <p class="version-tag">Versione: 1.0.20261023160823</p>
+        <p class="version-tag">Versione: 1.0.20261023161459</p>
+        <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
       </div>
     </details>
   </section>
@@ -1006,6 +1020,7 @@ el('btn-delete-track').addEventListener('click', async ()=>{
 async function loadTrackIntoPlayer(track, directFile){
   el('player-section').classList.remove('hidden');
   el('markers-section').classList.remove('hidden');
+  el('manual-select-box').classList.add('hidden');
   renderMarkers();
 
   if(track.type === 'youtube'){
@@ -1042,33 +1057,27 @@ async function loadTrackIntoPlayer(track, directFile){
 function promptManualFile(track){
   const audio = el('audio-player');
   audio.removeAttribute('src');
-  showToast('Seleziona il file "' + track.fileName + '" dalla cartella VocalCue per riprodurlo.');
-  const tempInput = document.createElement('input');
-  tempInput.type = 'file';
-  // Deve essere parte della pagina (anche se invisibile): alcuni browser,
-  // in particolare su iOS, non aprono il selettore per elementi non collegati al documento.
-  tempInput.style.position = 'fixed';
-  tempInput.style.top = '-9999px';
-  tempInput.style.left = '-9999px';
-  document.body.appendChild(tempInput);
-
-  function cleanup(){
-    if(tempInput.parentNode) tempInput.parentNode.removeChild(tempInput);
-  }
-
-  tempInput.addEventListener('change', ()=>{
-    const f = tempInput.files[0];
-    if(f){
-      if(currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
-      currentObjectUrl = URL.createObjectURL(f);
-      audio.src = currentObjectUrl;
-      audio.play().catch(()=>{});
-    }
-    cleanup();
-  });
-  tempInput.addEventListener('cancel', cleanup);
-  tempInput.click();
+  el('audio-player-box').classList.add('hidden');
+  el('manual-select-hint').textContent = 'Seleziona il file "' + track.fileName + '" per riprodurre questa traccia.';
+  el('manual-select-box').classList.remove('hidden');
 }
+
+el('btn-manual-select').addEventListener('click', ()=>{
+  // Tocco diretto dell'utente: su iOS è l'unico modo affidabile per aprire il selettore file.
+  el('manual-reselect-input').click();
+});
+el('manual-reselect-input').addEventListener('change', (e)=>{
+  const f = e.target.files[0];
+  if(!f) return;
+  const audio = el('audio-player');
+  if(currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+  currentObjectUrl = URL.createObjectURL(f);
+  audio.src = currentObjectUrl;
+  audio.play().catch(()=>{});
+  el('manual-select-box').classList.add('hidden');
+  el('audio-player-box').classList.remove('hidden');
+  e.target.value = '';
+});
 
 // ---------- YouTube IFrame API ----------
 function loadYoutubeApiScript(){
@@ -1205,16 +1214,9 @@ el('import-file-input').addEventListener('change', async (e)=>{
     const text = await file.text();
     const parsed = JSON.parse(text);
     if(!parsed.projects || !Array.isArray(parsed.projects)) throw new Error('Formato non valido');
-    const mode = confirm('Importare sostituendo la configurazione attuale?\n\nOK = sostituisci tutto\nAnnulla = aggiungi ai progetti esistenti');
-    if(mode){
-      config.projects = parsed.projects;
-    } else {
-      parsed.projects.forEach(p=>{
-        p.id = uid();
-        p.tracks.forEach(t=>{ t.id = uid(); });
-        config.projects.push(p);
-      });
-    }
+    const confirmed = confirm('Importare questa configurazione? Sostituirà quella attuale.');
+    if(!confirmed){ e.target.value = ''; return; }
+    config.projects = parsed.projects;
     currentProjectId = null;
     currentTrackId = null;
     saveConfig();
