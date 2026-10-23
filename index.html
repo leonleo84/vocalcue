@@ -410,6 +410,9 @@
         <input type="file" id="manual-reselect-input" class="offscreen-file-input">
       </div>
     </div>
+    <div class="row hidden" id="keep-current-row">
+      <button id="btn-keep-current-in-browser">Mantieni questa traccia in memoria sul dispositivo</button>
+    </div>
     <div class="time-readout" id="time-readout">00:00</div>
     <div class="row fine-seek-row">
       <button class="small" id="btn-seek-back5">-5s</button>
@@ -500,7 +503,7 @@
 
         <h3>7. Link YouTube</h3>
         <p>Per una base karaoke da YouTube, incolla il link: il video resta visibile nella pagina (è un requisito di YouTube), ma puoi comunque segnare punti precisi e farli ripartire da lì come con un file audio.</p>
-        <p class="version-tag">Versione: 1.0.20261023161459</p>
+        <p class="version-tag">Versione: 1.0.20261023162618</p>
         <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
       </div>
     </details>
@@ -521,6 +524,7 @@ let config = { projects: [] }; // {id,name,tracks:[{id,name,type,fileName,youtub
 let currentProjectId = null;
 let currentTrackId = null;
 let currentObjectUrl = null;
+let currentPlayableBlob = null;
 let ytPlayer = null;
 let ytReady = false;
 
@@ -980,7 +984,14 @@ el('btn-add-youtube-track').addEventListener('click', ()=>{
 // ---------- Track selection ----------
 el('track-select').addEventListener('change', async (e)=>{
   const id = e.target.value;
-  if(!id){ currentTrackId = null; el('player-section').classList.add('hidden'); el('markers-section').classList.add('hidden'); return; }
+  if(!id){
+    try{ el('audio-player').pause(); }catch(err){}
+    if(ytPlayer && ytPlayer.stopVideo){ try{ ytPlayer.stopVideo(); }catch(err){} }
+    currentTrackId = null;
+    el('player-section').classList.add('hidden');
+    el('markers-section').classList.add('hidden');
+    return;
+  }
   const project = getCurrentProject();
   const track = project.tracks.find(t=>t.id === id);
   currentTrackId = id;
@@ -1017,15 +1028,39 @@ el('btn-delete-track').addEventListener('click', async ()=>{
 });
 
 // ---------- Player loading ----------
+function updateKeepCurrentButton(track){
+  const row = el('keep-current-row');
+  const btn = el('btn-keep-current-in-browser');
+  if(!track || track.type !== 'file' || !currentPlayableBlob){
+    row.classList.add('hidden');
+    return;
+  }
+  row.classList.remove('hidden');
+  if(track.storedInBrowser){
+    btn.textContent = 'Già mantenuta in memoria su questo dispositivo';
+    btn.disabled = true;
+  } else {
+    btn.textContent = 'Mantieni questa traccia in memoria sul dispositivo';
+    btn.disabled = false;
+  }
+}
+
 async function loadTrackIntoPlayer(track, directFile){
+  // Ferma sempre qualsiasi riproduzione precedente, sia file audio che YouTube,
+  // prima di caricare la nuova traccia: altrimenti il player nascosto continuerebbe a suonare.
+  try{ el('audio-player').pause(); }catch(e){}
+  if(ytPlayer && ytPlayer.stopVideo){ try{ ytPlayer.stopVideo(); }catch(e){} }
+
   el('player-section').classList.remove('hidden');
   el('markers-section').classList.remove('hidden');
   el('manual-select-box').classList.add('hidden');
+  currentPlayableBlob = null;
   renderMarkers();
 
   if(track.type === 'youtube'){
     el('audio-player-box').classList.add('hidden');
     el('yt-player-box').classList.remove('hidden');
+    updateKeepCurrentButton(track);
     loadYoutube(track.youtubeId);
     return;
   }
@@ -1046,12 +1081,15 @@ async function loadTrackIntoPlayer(track, directFile){
 
   if(!fileToPlay){
     promptManualFile(track);
+    updateKeepCurrentButton(track);
     return;
   }
 
   if(currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
   currentObjectUrl = URL.createObjectURL(fileToPlay);
   audio.src = currentObjectUrl;
+  currentPlayableBlob = fileToPlay;
+  updateKeepCurrentButton(track);
 }
 
 function promptManualFile(track){
@@ -1076,7 +1114,28 @@ el('manual-reselect-input').addEventListener('change', (e)=>{
   audio.play().catch(()=>{});
   el('manual-select-box').classList.add('hidden');
   el('audio-player-box').classList.remove('hidden');
+  currentPlayableBlob = f;
+  updateKeepCurrentButton(getCurrentTrack());
   e.target.value = '';
+});
+
+// ---------- Mantieni in memoria la traccia attualmente caricata ----------
+el('btn-keep-current-in-browser').addEventListener('click', async ()=>{
+  const track = getCurrentTrack();
+  if(!track || !currentPlayableBlob){ showToast('Nessun file caricato da salvare.'); return; }
+  const btn = el('btn-keep-current-in-browser');
+  setButtonLoading(btn, true, 'Salvataggio…');
+  try{
+    const ok = await storeBlobWithLimit(track.id, currentPlayableBlob, track.name);
+    if(ok !== false){
+      track.storedInBrowser = true;
+      saveConfig();
+      showToast('Traccia mantenuta in memoria su questo dispositivo.');
+    }
+  } finally {
+    setButtonLoading(btn, false);
+    updateKeepCurrentButton(track);
+  }
 });
 
 // ---------- YouTube IFrame API ----------
