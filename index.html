@@ -285,8 +285,8 @@
   details .inst-body ol, details .inst-body ul{ padding-left: 20px; margin: 4px 0; }
   .keep-current-row{
     text-align: right;
-    margin-top: -4px;
-    margin-bottom: 10px;
+    margin-top: -6px;
+    margin-bottom: 0;
   }
   .keep-current-link{
     background: none;
@@ -398,8 +398,8 @@
     </div>
     <div class="row">
       <button id="btn-add-project">Nuovo progetto</button>
-      <button class="ghost small" id="btn-rename-project">Rinomina</button>
-      <button class="danger small" id="btn-delete-project">Elimina progetto</button>
+      <button class="ghost" id="btn-rename-project">Rinomina</button>
+      <button class="danger" id="btn-delete-project">Elimina progetto</button>
     </div>
   </section>
 
@@ -410,8 +410,8 @@
       <option value="">— Nessuna traccia selezionata —</option>
     </select>
     <div class="row">
-      <button class="ghost small" id="btn-rename-track">Rinomina</button>
-      <button class="danger small" id="btn-delete-track">Elimina traccia</button>
+      <button class="ghost" id="btn-rename-track">Rinomina</button>
+      <button class="danger" id="btn-delete-track">Elimina traccia</button>
     </div>
   </section>
 
@@ -430,9 +430,6 @@
         <input type="file" id="manual-reselect-input" class="offscreen-file-input">
       </div>
     </div>
-    <div class="keep-current-row hidden" id="keep-current-row">
-      <button class="keep-current-link" id="btn-keep-current-in-browser">Mantieni in memoria su questo dispositivo</button>
-    </div>
     <div class="time-readout" id="time-readout">00:00</div>
     <div class="row fine-seek-row">
       <button class="small" id="btn-seek-back5">-5s</button>
@@ -447,6 +444,9 @@
     </div>
     <div class="row">
       <button class="primary" id="btn-add-marker">Segna questo punto</button>
+    </div>
+    <div class="keep-current-row hidden" id="keep-current-row">
+      <button class="keep-current-link" id="btn-keep-current-in-browser">Mantieni in memoria su questo dispositivo</button>
     </div>
   </section>
 
@@ -523,7 +523,7 @@
 
         <h3>7. Link YouTube</h3>
         <p>Per una base karaoke da YouTube, incolla il link: il video resta visibile nella pagina (è un requisito di YouTube), ma puoi comunque segnare punti precisi e farli ripartire da lì come con un file audio.</p>
-        <p class="version-tag">Versione: 1.0.20261023163758</p>
+        <p class="version-tag">Versione: 1.0.20261023164954</p>
         <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
       </div>
     </details>
@@ -660,7 +660,8 @@ function getCurrentTrack(){
 function renderProjectSelect(){
   const sel = el('project-select');
   sel.innerHTML = '<option value="">— Nessun progetto selezionato —</option>';
-  config.projects.forEach(p=>{
+  const sortedProjects = [...config.projects].sort((a,b)=> a.name.localeCompare(b.name, 'it', {sensitivity:'base'}));
+  sortedProjects.forEach(p=>{
     const opt = document.createElement('option');
     opt.value = p.id;
     opt.textContent = p.name;
@@ -733,12 +734,12 @@ function renderTrackSelect(){
   sel.innerHTML = '<option value="">— Nessuna traccia selezionata —</option>';
   const project = getCurrentProject();
   if(!project) return;
-  project.tracks.forEach(t=>{
+  const sortedTracks = [...project.tracks].sort((a,b)=> a.name.localeCompare(b.name, 'it', {sensitivity:'base'}));
+  sortedTracks.forEach(t=>{
     const opt = document.createElement('option');
     opt.value = t.id;
     let label = t.name;
-    if(t.type === 'file') label += '  (' + t.fileName + ')';
-    else label += '  (YouTube)';
+    label += t.type === 'youtube' ? '  (YouTube)' : '  (File)';
     opt.textContent = label;
     if(t.id === currentTrackId) opt.selected = true;
     sel.appendChild(opt);
