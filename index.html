@@ -385,7 +385,7 @@
     </div>
 
     <div id="panel-file">
-      <input type="file" id="audio-file-input" accept="audio/*" class="hidden">
+      <input type="file" id="audio-file-input" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.flac,.aiff" class="hidden">
       <button type="button" class="primary file-picker-btn" id="btn-open-file-picker">Scegli file audio</button>
       <p class="filename-hint" id="selected-file-name">Nessun file selezionato</p>
       <div class="checkbox-row">
@@ -1033,7 +1033,7 @@ function promptManualFile(track){
   showToast('Seleziona il file "' + track.fileName + '" dalla cartella VocalCue per riprodurlo.');
   const tempInput = document.createElement('input');
   tempInput.type = 'file';
-  tempInput.accept = 'audio/*';
+  tempInput.accept = 'audio/*,.mp3,.m4a,.wav,.aac,.ogg,.flac,.aiff';
   tempInput.addEventListener('change', ()=>{
     const f = tempInput.files[0];
     if(f){
