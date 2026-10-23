@@ -6,33 +6,33 @@
 <title>VocalCue</title>
 <style>
   :root{
-    --bg: #11282b;
-    --bg-deep: #0b1d1f;
-    --surface: #17363a;
-    --surface-raised: #1d4247;
-    --line: #2d5559;
-    --text: #f3ede1;
-    --text-dim: #b9c9c7;
-    --accent: #e3a23d;
-    --accent-dim: #b9802e;
-    --accent-2: #73b6a4;
-    --danger: #d9684f;
+    --bg: #230e13;
+    --bg-deep: #1a0a0d;
+    --surface: #2e131a;
+    --surface-raised: #3a1821;
+    --line: #512230;
+    --text: #f5ead9;
+    --text-dim: #c9a79f;
+    --accent: #f2c531;
+    --accent-dim: #cfa424;
+    --accent-2: #f7dd82;
+    --danger: #e2683a;
     --radius: 10px;
     color-scheme: dark;
   }
   @media (prefers-color-scheme: light){
     :root{
-      --bg: #11282b;
-      --bg-deep: #0b1d1f;
-      --surface: #17363a;
-      --surface-raised: #1d4247;
-      --line: #2d5559;
-      --text: #f3ede1;
-      --text-dim: #b9c9c7;
-      --accent: #e3a23d;
-      --accent-dim: #b9802e;
-      --accent-2: #73b6a4;
-      --danger: #d9684f;
+      --bg: #230e13;
+      --bg-deep: #1a0a0d;
+      --surface: #2e131a;
+      --surface-raised: #3a1821;
+      --line: #512230;
+      --text: #f5ead9;
+      --text-dim: #c9a79f;
+      --accent: #f2c531;
+      --accent-dim: #cfa424;
+      --accent-2: #f7dd82;
+      --danger: #e2683a;
     }
   }
   *{box-sizing:border-box;}
@@ -65,14 +65,6 @@
     color: var(--text);
   }
   .brand span{ color: var(--accent); }
-  .storage-pill{
-    font-size: 0.72rem;
-    color: var(--text-dim);
-    border:1px solid var(--line);
-    border-radius: 999px;
-    padding: 3px 10px;
-    white-space:nowrap;
-  }
   section{
     background: var(--surface);
     border: 1px solid var(--line);
@@ -191,6 +183,32 @@
     border-bottom: 1px solid var(--line);
   }
   .marker-list li:last-child{ border-bottom:none; }
+  .fine-seek-row button{
+    font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  .goto-label{
+    flex: 0 0 auto;
+    align-self: center;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+  #goto-time-input{ margin-bottom:0; flex: 1 1 90px; }
+  #btn-goto-time{ flex: 0 0 auto; }
+  .play-btn{
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    border: none;
+    color: #26190a;
+    padding: 0;
+  }
+  .play-btn:hover{ background: var(--accent-dim); }
+  .play-btn svg{ margin-left: 2px; }
   .marker-time{
     font-family: "SFMono-Regular", Menlo, Consolas, monospace;
     color: var(--accent-2);
@@ -291,7 +309,6 @@
 
   <header>
     <div class="brand">Vocal<span>Cue</span></div>
-    <div class="storage-pill" id="storage-pill">rilevamento…</div>
   </header>
 
   <section>
@@ -358,6 +375,17 @@
       </div>
     </div>
     <div class="time-readout" id="time-readout">00:00</div>
+    <div class="row fine-seek-row">
+      <button class="small" id="btn-seek-back5">-5s</button>
+      <button class="small" id="btn-seek-back1">-1s</button>
+      <button class="small" id="btn-seek-fwd1">+1s</button>
+      <button class="small" id="btn-seek-fwd5">+5s</button>
+    </div>
+    <div class="row">
+      <label for="goto-time-input" class="goto-label">Vai a (mm:ss)</label>
+      <input type="text" id="goto-time-input" placeholder="es. 01:23" inputmode="numeric">
+      <button id="btn-goto-time">Vai</button>
+    </div>
     <div class="row">
       <button class="primary" id="btn-add-marker">Segna questo punto</button>
     </div>
@@ -376,10 +404,6 @@
       <button id="btn-import">Importa configurazione</button>
     </div>
     <input type="file" id="import-file-input" accept="application/json" class="hidden">
-    <div class="row" id="folder-row">
-      <button id="btn-set-folder">Imposta cartella sul dispositivo</button>
-    </div>
-    <p class="filename-hint" id="folder-status"></p>
   </section>
 
   <section>
@@ -387,30 +411,29 @@
       <summary>Istruzioni</summary>
       <div class="inst-body">
         <h3>0. Mettere VocalCue comodamente sul telefono</h3>
-        <p>Salva questo file HTML in una cartella dedicata sul telefono, ad esempio chiamata <code>VocalCue</code> — la stessa che userai per i file audio.</p>
-        <p><strong>Android (Chrome):</strong> apri il file da Chrome, tocca i tre puntini in alto a destra, scegli "Aggiungi a schermata Home". Da quel momento avrai un'icona che apre l'app a schermo intero.</p>
-        <p><strong>iPhone (Safari):</strong> apri il file dall'app File scegliendo "Apri in Safari", tocca l'icona di condivisione in basso, scorri e scegli "Aggiungi a Home".</p>
+        <p>Apri l'indirizzo web di VocalCue nel browser del telefono, poi aggiungilo alla schermata Home per usarlo come una vera app.</p>
+        <p><strong>Android (Chrome):</strong> apri il link, tocca i tre puntini in alto a destra, scegli "Aggiungi a schermata Home". Da quel momento avrai un'icona che apre l'app a schermo intero.</p>
+        <p><strong>iPhone (Safari):</strong> apri il link in Safari, tocca l'icona di condivisione in basso, scorri e scegli "Aggiungi a Home".</p>
 
         <h3>1. Progetti</h3>
         <p>Un progetto raccoglie le canzoni di un corso, una classe o un musical specifico (es. "Musical classe A", "Coro del giovedì"). Crea un progetto, poi aggiungi al suo interno tutte le tracce che ti servono per quel gruppo. Puoi passare da un progetto all'altro dal menu in alto in qualsiasi momento.</p>
 
         <h3>2. La cartella VocalCue</h3>
-        <p>Crea una cartella chiamata <code>VocalCue</code> sul tuo dispositivo: lì terrai tutti i file audio usati nell'app, organizzati automaticamente in una sottocartella per ogni progetto.</p>
-        <p><strong>Computer (Chrome o Edge su Windows/Mac/Linux):</strong> tocca "Imposta cartella sul dispositivo" qui sopra e seleziona quella cartella una volta sola. Da quel momento, quando carichi un nuovo file audio, viene salvato lì automaticamente — e viene ritrovato da solo ogni volta che riapri l'app.</p>
-        <p><strong>Android e iPhone:</strong> questa automazione non è disponibile sui telefoni (è un limite del browser, non dell'app). Copia prima manualmente il file audio nella cartella VocalCue (tramite l'app File o Google Drive, salvandolo da Mail, AirDrop, iCloud o Drive), poi selezionalo dall'app quando richiesto. Il nome del file atteso è sempre indicato accanto al nome della traccia nel menu a tendina.</p>
-        <p><strong>Suggerimento — usare Google Drive come cartella:</strong> se hai l'app Google Drive installata sul telefono, puoi tenere la cartella VocalCue dentro Drive invece che solo in locale. Così, quando l'app ti chiede di selezionare un file, Drive comparirà tra le origini disponibili nel selettore, e lo stesso file sarà automaticamente presente anche sugli altri dispositivi collegati allo stesso account — senza doverlo trasferire a mano tra telefoni. Resta comunque una selezione manuale ogni volta (il file non viene "ricordato" da solo), e se non è già scaricato sul dispositivo serve una connessione internet per recuperarlo.</p>
+        <p>Crea una cartella chiamata <code>VocalCue</code> sul tuo dispositivo (o dentro Google Drive, se vuoi tenerla sincronizzata tra più dispositivi): lì terrai tutti i file audio usati nell'app.</p>
+        <p>Su qualsiasi piattaforma — computer, Android o iPhone — il funzionamento è lo stesso: copia prima il file audio nella cartella VocalCue, poi selezionalo dall'app quando richiesto. Il nome del file atteso è sempre indicato accanto al nome della traccia nel menu a tendina, così sai sempre quale cercare.</p>
 
         <h3>3. Marcatori</h3>
-        <p>Metti in pausa la traccia nel punto che vuoi memorizzare e tocca "Segna questo punto": ti verrà chiesta un'etichetta (es. "Ritornello"). Tocca un marcatore nella lista per far ripartire la traccia esattamente da lì. Ogni marcatore può essere rinominato o eliminato singolarmente.</p>
+        <p>Metti in pausa la traccia nel punto che vuoi memorizzare e tocca "Segna questo punto": ti verrà chiesta un'etichetta (es. "Ritornello"). Tocca il pulsante play accanto a un marcatore nella lista per far ripartire la traccia esattamente da lì. Ogni marcatore può essere rinominato o eliminato singolarmente.</p>
 
         <h3>4. "Mantieni in memoria su questo dispositivo"</h3>
-        <p>Opzione alternativa alla cartella (utile anche su iPhone): salva il file audio direttamente nel browser, fino a un massimo di 5 file in totale su tutti i progetti. Se provi ad aggiungerne un sesto, l'app ti chiederà quale dei 5 eliminare per fare spazio.</p>
+        <p>Opzione per evitare di riselezionare il file ogni volta: salva il file audio direttamente nel browser, fino a un massimo di 5 file in totale su tutti i progetti. Se provi ad aggiungerne un sesto, l'app ti chiederà quale dei 5 eliminare per fare spazio.</p>
 
         <h3>5. Eliminare una traccia o un progetto</h3>
-        <p>Su computer (Chrome/Edge), quando elimini una traccia ti viene chiesto se vuoi cancellare anche il file fisico dalla cartella o solo rimuoverlo dall'elenco. Su Android e iPhone, l'eliminazione rimuove solo la traccia dall'app: il file resta nella cartella (locale o su Drive) e va rimosso manualmente se non serve più. Eliminare un progetto elimina tutte le sue tracce e marcatori.</p>
+        <p>Eliminare una traccia la rimuove solo dall'app: il file audio resta nella cartella (locale o su Drive) e va rimosso manualmente se non serve più. Eliminare un progetto elimina tutte le sue tracce e marcatori.</p>
 
-        <h3>6. Esportare/importare la configurazione</h3>
-        <p>Il pulsante "Esporta configurazione" scarica un file JSON con tutti i progetti, le tracce e i marcatori, utile come backup o per trasferirli su un altro dispositivo. "Importa configurazione" ricarica quel file.</p>
+        <h3>6. Esportare/importare la configurazione — il tuo unico vero salvataggio</h3>
+        <p>Progetti, tracce e marcatori vengono tenuti solo nella memoria di questo browser su questo dispositivo: non c'è alcun salvataggio automatico altrove. Se svuoti la cache, disinstalli il browser, cambi telefono o semplicemente quella memoria viene cancellata, perdi tutto senza preavviso.</p>
+        <p>Per questo motivo, "Esporta configurazione" non è un'opzione solo per trasferire i dati su un altro dispositivo: è <strong>l'unico modo per avere una copia di sicurezza reale</strong> del tuo lavoro. Usalo regolarmente — ad esempio dopo ogni sessione in cui aggiungi tracce o marcatori — e conserva il file JSON scaricato in un posto sicuro (es. email a te stesso, Google Drive). "Importa configurazione" ricarica quel file per ripristinare tutto, su questo dispositivo o su un altro.</p>
 
         <h3>7. Link YouTube</h3>
         <p>Per una base karaoke da YouTube, incolla il link: il video resta visibile nella pagina (è un requisito di YouTube), ma puoi comunque segnare punti precisi e farli ripartire da lì come con un file audio.</p>
@@ -435,8 +458,6 @@ let currentTrackId = null;
 let currentObjectUrl = null;
 let ytPlayer = null;
 let ytReady = false;
-let dirHandle = null; // FileSystemDirectoryHandle (root VocalCue folder)
-let fsApiSupported = ('showDirectoryPicker' in window);
 
 const el = (id) => document.getElementById(id);
 
@@ -534,68 +555,6 @@ async function idbAllKeys(store){
     r.onsuccess = ()=>resolve(r.result);
     r.onerror = ()=>reject(r.error);
   });
-}
-
-// ---------- Directory handle (File System Access API) ----------
-async function persistDirHandle(handle){
-  await idbPut('meta', 'dirHandle', handle);
-}
-async function restoreDirHandle(){
-  if(!fsApiSupported) return null;
-  try{
-    const handle = await idbGet('meta', 'dirHandle');
-    if(!handle) return null;
-    const perm = await handle.queryPermission({mode:'readwrite'});
-    if(perm === 'granted'){ dirHandle = handle; return handle; }
-    dirHandle = handle;
-    return handle;
-  }catch(e){ return null; }
-}
-async function ensureDirPermission(){
-  if(!dirHandle) return false;
-  let perm = await dirHandle.queryPermission({mode:'readwrite'});
-  if(perm !== 'granted'){
-    perm = await dirHandle.requestPermission({mode:'readwrite'});
-  }
-  return perm === 'granted';
-}
-async function getProjectDirHandle(project, create){
-  if(!dirHandle || !project) return null;
-  const ok = await ensureDirPermission();
-  if(!ok) return null;
-  try{
-    return await dirHandle.getDirectoryHandle(project.name, {create: !!create});
-  }catch(e){ return null; }
-}
-
-el('btn-set-folder').addEventListener('click', async ()=>{
-  if(!fsApiSupported){
-    showToast('Il tuo browser non supporta questa funzione. Usa "Mantieni in memoria" come alternativa.');
-    return;
-  }
-  try{
-    const handle = await window.showDirectoryPicker({mode:'readwrite'});
-    dirHandle = handle;
-    await persistDirHandle(handle);
-    updateStorageStatus();
-    showToast('Cartella impostata: ' + handle.name);
-  }catch(e){ /* annullato dall'utente */ }
-});
-
-function updateStorageStatus(){
-  const pill = el('storage-pill');
-  const status = el('folder-status');
-  if(fsApiSupported && dirHandle){
-    pill.textContent = 'Cartella: ' + dirHandle.name;
-    status.textContent = 'I file audio caricati vengono salvati automaticamente in una sottocartella per ogni progetto.';
-  } else if(fsApiSupported){
-    pill.textContent = 'Nessuna cartella impostata';
-    status.textContent = 'Imposta una cartella per salvare i file automaticamente, oppure usa "Mantieni in memoria".';
-  } else {
-    pill.textContent = 'Selezione manuale dei file';
-    status.textContent = 'Questo browser (tipico di Android e iPhone) non supporta il salvataggio automatico in cartella. Copia i file manualmente nella cartella VocalCue — anche su Google Drive, se vuoi tenerli sincronizzati tra dispositivi — e selezionali quando richiesto, oppure usa "Mantieni in memoria".';
-    el('folder-row').classList.add('hidden');
-  }
 }
 
 // ---------- Helpers: progetto / traccia correnti ----------
@@ -711,6 +670,13 @@ function renderMarkers(){
   sorted.forEach(m=>{
     const li = document.createElement('li');
 
+    const playBtn = document.createElement('button');
+    playBtn.className = 'play-btn';
+    playBtn.setAttribute('aria-label', 'Riproduci da ' + fmtTime(m.time));
+    playBtn.title = 'Riproduci da qui';
+    playBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    playBtn.addEventListener('click', ()=> seekTo(m.time));
+
     const timeSpan = document.createElement('span');
     timeSpan.className = 'marker-time';
     timeSpan.textContent = fmtTime(m.time);
@@ -718,9 +684,6 @@ function renderMarkers(){
     const labelSpan = document.createElement('span');
     labelSpan.className = 'marker-label';
     labelSpan.textContent = m.label;
-    labelSpan.style.cursor = 'pointer';
-    labelSpan.title = 'Tocca per riprodurre da qui';
-    labelSpan.addEventListener('click', ()=> seekTo(m.time));
 
     const actions = document.createElement('div');
     actions.className = 'marker-actions';
@@ -751,6 +714,7 @@ function renderMarkers(){
     actions.appendChild(renameBtn);
     actions.appendChild(delBtn);
 
+    li.appendChild(playBtn);
     li.appendChild(timeSpan);
     li.appendChild(labelSpan);
     li.appendChild(actions);
@@ -771,6 +735,22 @@ el('tab-youtube').addEventListener('click', ()=>{
   el('panel-youtube').classList.remove('hidden');
   el('panel-file').classList.add('hidden');
 });
+
+// ---------- Stato di caricamento sui pulsanti ----------
+function setButtonLoading(btn, isLoading, loadingText){
+  if(isLoading){
+    btn.dataset.originalText = btn.textContent;
+    btn.textContent = loadingText || 'Attendere…';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    btn.style.cursor = 'wait';
+  } else {
+    btn.textContent = btn.dataset.originalText || btn.textContent;
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.style.cursor = '';
+  }
+}
 
 // ---------- Add file track ----------
 el('btn-add-file-track').addEventListener('click', async ()=>{
@@ -793,31 +773,27 @@ el('btn-add-file-track').addEventListener('click', async ()=>{
     storedInBrowser: false
   };
 
-  if(fsApiSupported && dirHandle){
-    try{
-      const projDir = await getProjectDirHandle(project, true);
-      if(projDir){
-        const fh = await projDir.getFileHandle(file.name, {create:true});
-        const writable = await fh.createWritable();
-        await writable.write(file);
-        await writable.close();
-        showToast('File salvato nella cartella del progetto.');
-      }
-    }catch(e){ showToast('Non è stato possibile scrivere nella cartella: ' + e.message); }
-  }
+  const btn = el('btn-add-file-track');
+  setButtonLoading(btn, true, 'Salvataggio in corso…');
 
-  if(keepInBrowser){
-    await storeBlobWithLimit(track.id, file, trackName);
-    track.storedInBrowser = true;
-  }
+  try{
+    if(keepInBrowser){
+      setButtonLoading(btn, true, 'Salvataggio nel browser…');
+      await storeBlobWithLimit(track.id, file, trackName);
+      track.storedInBrowser = true;
+    }
 
-  project.tracks.push(track);
-  saveConfig();
-  currentTrackId = track.id;
-  renderTrackSelect();
-  await loadTrackIntoPlayer(track, file);
-  input.value = '';
-  el('keep-in-browser').checked = false;
+    project.tracks.push(track);
+    saveConfig();
+    currentTrackId = track.id;
+    renderTrackSelect();
+    setButtonLoading(btn, true, 'Caricamento traccia…');
+    await loadTrackIntoPlayer(track, file);
+    input.value = '';
+    el('keep-in-browser').checked = false;
+  } finally {
+    setButtonLoading(btn, false);
+  }
 });
 
 async function storeBlobWithLimit(trackId, file, trackName){
@@ -949,15 +925,6 @@ el('btn-delete-track').addEventListener('click', async ()=>{
   if(!track){ showToast('Seleziona prima una traccia.'); return; }
   if(!confirm('Eliminare la traccia "'+track.name+'" e tutti i suoi marcatori?')) return;
 
-  if(track.type === 'file' && fsApiSupported && dirHandle){
-    const alsoDeleteFile = confirm('Vuoi eliminare anche il file audio dalla cartella sul dispositivo?\n\nOK = elimina anche il file\nAnnulla = mantieni solo il file, rimuovi solo dall\'elenco');
-    if(alsoDeleteFile){
-      try{
-        const projDir = await getProjectDirHandle(project, false);
-        if(projDir) await projDir.removeEntry(track.fileName);
-      }catch(e){ /* file forse già assente */ }
-    }
-  }
   if(track.storedInBrowser){
     await idbDelete('blobs', track.id);
   }
@@ -989,16 +956,6 @@ async function loadTrackIntoPlayer(track, directFile){
   const project = getCurrentProject();
 
   let fileToPlay = directFile || null;
-
-  if(!fileToPlay && fsApiSupported && dirHandle && project){
-    try{
-      const projDir = await getProjectDirHandle(project, false);
-      if(projDir){
-        const fh = await projDir.getFileHandle(track.fileName);
-        fileToPlay = await fh.getFile();
-      }
-    }catch(e){ /* file non trovato nella cartella */ }
-  }
 
   if(!fileToPlay && track.storedInBrowser){
     try{
@@ -1081,6 +1038,51 @@ function seekTo(time){
     audio.play().catch(()=>{});
   }
 }
+function setCurrentTime(time){
+  const track = getCurrentTrack();
+  if(!track) return;
+  time = Math.max(0, time);
+  if(track.type === 'youtube'){
+    if(ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(time, true);
+  } else {
+    el('audio-player').currentTime = time;
+  }
+  el('time-readout').textContent = fmtTime(time);
+}
+function adjustCurrentTime(delta){
+  if(!getCurrentTrack()) return;
+  setCurrentTime(getCurrentTime() + delta);
+}
+function parseMinSec(text){
+  text = text.trim();
+  if(!text) return null;
+  if(text.includes(':')){
+    const parts = text.split(':');
+    if(parts.length !== 2) return null;
+    const m = parseInt(parts[0], 10);
+    const s = parseInt(parts[1], 10);
+    if(isNaN(m) || isNaN(s)) return null;
+    return m*60 + s;
+  }
+  const s = parseInt(text, 10);
+  return isNaN(s) ? null : s;
+}
+
+el('btn-seek-back5').addEventListener('click', ()=> adjustCurrentTime(-5));
+el('btn-seek-back1').addEventListener('click', ()=> adjustCurrentTime(-1));
+el('btn-seek-fwd1').addEventListener('click', ()=> adjustCurrentTime(1));
+el('btn-seek-fwd5').addEventListener('click', ()=> adjustCurrentTime(5));
+
+el('btn-goto-time').addEventListener('click', ()=>{
+  if(!getCurrentTrack()){ showToast('Seleziona prima una traccia.'); return; }
+  const seconds = parseMinSec(el('goto-time-input').value);
+  if(seconds === null){ showToast('Formato non valido. Usa mm:ss, es. 01:23.'); return; }
+  setCurrentTime(seconds);
+});
+el('goto-time-input').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') el('btn-goto-time').click();
+});
+
 setInterval(()=>{
   if(!el('player-section').classList.contains('hidden')){
     el('time-readout').textContent = fmtTime(getCurrentTime());
@@ -1144,8 +1146,6 @@ el('import-file-input').addEventListener('change', async (e)=>{
 // ---------- Init ----------
 async function init(){
   loadConfig();
-  await restoreDirHandle();
-  updateStorageStatus();
   renderProjectSelect();
   renderTrackSelect();
 }
