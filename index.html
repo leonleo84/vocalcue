@@ -283,6 +283,26 @@
   details .inst-body{ margin-top:12px; font-size: 0.88rem; line-height:1.55; color: var(--text); }
   details .inst-body h3{ font-size:0.85rem; color:var(--accent-2); margin: 14px 0 4px; }
   details .inst-body ol, details .inst-body ul{ padding-left: 20px; margin: 4px 0; }
+  .keep-current-row{
+    text-align: right;
+    margin-top: -4px;
+    margin-bottom: 10px;
+  }
+  .keep-current-link{
+    background: none;
+    border: none;
+    padding: 4px 0;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .keep-current-link:hover{ color: var(--accent-2); border-color: transparent; }
+  .keep-current-link:disabled{
+    text-decoration: none;
+    opacity: 0.7;
+    cursor: default;
+  }
   .version-tag{
     margin-top: 18px;
     font-size: 0.68rem;
@@ -410,8 +430,8 @@
         <input type="file" id="manual-reselect-input" class="offscreen-file-input">
       </div>
     </div>
-    <div class="row hidden" id="keep-current-row">
-      <button id="btn-keep-current-in-browser">Mantieni questa traccia in memoria sul dispositivo</button>
+    <div class="keep-current-row hidden" id="keep-current-row">
+      <button class="keep-current-link" id="btn-keep-current-in-browser">Mantieni in memoria su questo dispositivo</button>
     </div>
     <div class="time-readout" id="time-readout">00:00</div>
     <div class="row fine-seek-row">
@@ -503,7 +523,7 @@
 
         <h3>7. Link YouTube</h3>
         <p>Per una base karaoke da YouTube, incolla il link: il video resta visibile nella pagina (è un requisito di YouTube), ma puoi comunque segnare punti precisi e farli ripartire da lì come con un file audio.</p>
-        <p class="version-tag">Versione: 1.0.20261023162618</p>
+        <p class="version-tag">Versione: 1.0.20261023163758</p>
         <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
       </div>
     </details>
@@ -821,13 +841,19 @@ el('tab-youtube').addEventListener('click', ()=>{
 // ---------- Stato di caricamento sui pulsanti ----------
 function setButtonLoading(btn, isLoading, loadingText){
   if(isLoading){
-    btn.dataset.originalText = btn.textContent;
+    // Salva il testo originale solo alla prima chiamata: chiamate successive durante
+    // lo stesso caricamento (es. per cambiare il messaggio) non devono sovrascriverlo.
+    if(!btn.dataset.loading){
+      btn.dataset.originalText = btn.textContent;
+      btn.dataset.loading = '1';
+    }
     btn.textContent = loadingText || 'Attendere…';
     btn.disabled = true;
     btn.style.opacity = '0.7';
     btn.style.cursor = 'wait';
   } else {
     btn.textContent = btn.dataset.originalText || btn.textContent;
+    delete btn.dataset.loading;
     btn.disabled = false;
     btn.style.opacity = '';
     btn.style.cursor = '';
@@ -874,6 +900,7 @@ el('btn-add-file-track').addEventListener('click', async ()=>{
     input.value = '';
     el('selected-file-name').textContent = 'Nessun file selezionato';
     el('keep-in-browser').checked = false;
+    showToast('Traccia "' + trackName + '" aggiunta e pronta per la riproduzione.');
   } finally {
     setButtonLoading(btn, false);
   }
@@ -979,6 +1006,7 @@ el('btn-add-youtube-track').addEventListener('click', ()=>{
   renderTrackSelect();
   loadTrackIntoPlayer(track);
   el('youtube-url-input').value = '';
+  showToast('Traccia "' + trackName + '" aggiunta e pronta per la riproduzione.');
 });
 
 // ---------- Track selection ----------
