@@ -2,6 +2,20 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
+<script>
+// Forza un ricaricamento con URL "sempre diverso" per evitare che iOS mostri
+// una copia vecchia della pagina quando l'app viene aperta dalla schermata Home.
+(function(){
+  try{
+    var params = new URLSearchParams(window.location.search);
+    if(!params.has('vc')){
+      params.set('vc', Date.now());
+      var newUrl = window.location.pathname + '?' + params.toString() + window.location.hash;
+      window.location.replace(newUrl);
+    }
+  }catch(e){ /* se qualcosa va storto, la pagina si carica comunque normalmente */ }
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>VocalCue</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
