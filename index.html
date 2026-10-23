@@ -22,6 +22,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%231a0a0d'/%3E%3Ccircle cx='32' cy='32' r='27' fill='%23512230'/%3E%3Cpath d='M25 19v26l20-13z' fill='%23f2c531'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAFQElEQVR4nO3bS47UShBAUdcTIyTmT0xZBKtBrA2xml5Ez3sXMEhkGaqyKz+R8ct7xoCKyEvYLtO3zx8/HcAj/1l/APhFHKgiDlQRB6qIA1XEgSriQBVxoIo4UEUcqCIOVBEHqogDVR+sP4CNr/9/6f0tL2+vKz6JZ7f0r+wHOmiXu5iccSwNoiZfKKniMGniXppKMsThpIl70SsJHIfbJu4FrSRkHIGyuAqXSLA4gmZxFSiRMHEkyOIqRCIB4kiWxZXzRFzHkTiLK7eJOI1jkyyuHCbi8cXbhmUcLv/WvjaHwwHp87NCHG0Oyij8zMFLHH4m4oGTadhfVpwMwifbS4zx5qCM99nOxzIOymhhOCWzOCijndWsbOKgjF4mEzOIgzLG6M9NOw7KmKE8PdU4KGOe5gz14qAMKWqTVIqDMmTpzFMjDspYQWGqy+OgjHVWz3ZtHJSx2tIJL4yDMnSsm7OXV/ZwaFUcrA1Ni6a9JA7K0Ldi5vJxUIYV8clzz4Eq4ThYG7Zk5y8ZB2V4IHgKXFZQJRYHa8MPqbNgc6BKJg5Xa+PHz5v1R7AnciI5N8ePnzcSmScQh6u1cbV5H/PnknNznFghM2bjcLs2rrbtY/J0km+OEytkwFQcIdbG1YZ9zJzRLpvjxAppNx5HuLVxtVUfwye13eY4sUKe2jeOgkTeMRhH6GvKvfR9jJ3X7pvjxAq5Rxx/oY+rkTiSXVP+kXWFDJwam+OxlH30Io6qrCukXXccua8p9zL10Xt2bI7ntl0hxNFqw0SIo89WffTFsdsNx0OhV0jXCbI5BsXtox1xjAu9QloQx6zEfRCHgKwrhDjE5OuDOCQlWyEdcfAc28h5Iu3nyOZYxXMfjYhjIecr5CniWC5uH8ShIegKIQ494fogDlWxVghxGIjSB3HYCLFCPlh/gE19//bL+iM8x+YwEKKMg82hLEoWBZtDT6wyDjaHjnBZFGyO5YKWcbA5loqbRcHmWCV6GUfX5nh5e+X/+7RwnsXL22vjr+SyIsl5Fr24rIhJVsbB5hCRL4uCzTEraxkHm2NG4iwKNseg9GUcvZuDp9kjeBbtz7EHm6NX6DJ6cc/RaqssCuJ4bsMsiu7LStdFK4FMZfSeHZujKlMWY7ghfYwyjrHNkfuBNmsWA/cDbI6/ZC1jDPccf5DFvcHNkeyZJX0ZY+e1++ZIn8WMfeMgi6fGb0hDX1m2KmP4pLbbHFtlMWnqUTbc8tiwjJkz2mVzbJjFvNkvwUIsj23LmDyd5Jtj2yxECHx97nZ5bF7G/Lnk3BybZyHl9vnjJ5E/KPF72ohE1jlvZVElFofbO48NSZ0FmwNVknGwPDwQPAXhzUEftmTnz2UFVfJxsDysiE9+yeagD30rZr7qskIfmhZNm3sOVC2Mg+WhY92c124O+lht6YSXX1boY53Vs9W456CPFRSmqnRDSh+ydOap97RCH1LUJqn6KEsf8zRnqP09B33MUJ6ewZdg9DFGf24235DSRy+TiZl9fU4f7axmZfluhT5aGE7J+MUbfbzPdj5iP7cyiR97+YeHfzZeXtl7mIUfTqbhJY7DzUTM+ZmDl8vK1baXGD9ZFI42x8nbjHQ4/Ft73BynTVaIwywK13EUiRNxm0URII4iWSLOsyjCxFEkSCREFkWwOIqgiQTKoggZRxEokXBZFIHjOLmtJGgTpwxxnJxUEr2JU6o4TiaVpGnilDOOq6Wh5AviKn8cDw0Uk7uDhzaNAy08vniDE8SBKuJAFXGgijhQRRyoIg5UEQeqiANVxIEq4kAVcaDqN9l8nfUOHLR0AAAAAElFTkSuQmCC">
 <style>
   :root{
     --bg: #230e13;
@@ -146,7 +147,8 @@
     padding: 5px 9px;
     font-size: 0.78rem;
   }
-  .row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 10px; }
+  .row:last-child{ margin-bottom: 0; }
   .row > *{ flex: 1 1 auto; }
   .tabs{
     display:flex;
@@ -212,6 +214,16 @@
   }
   #goto-time-input{ margin-bottom:0; flex: 1 1 90px; }
   #btn-goto-time{ flex: 0 0 auto; }
+  .icon-btn{
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
   .play-btn{
     flex-shrink: 0;
     width: 32px;
@@ -716,8 +728,10 @@ function renderMarkers(){
     actions.className = 'marker-actions';
 
     const renameBtn = document.createElement('button');
-    renameBtn.className = 'small ghost';
-    renameBtn.textContent = 'Rinomina';
+    renameBtn.className = 'icon-btn ghost';
+    renameBtn.setAttribute('aria-label', 'Rinomina marcatore');
+    renameBtn.title = 'Rinomina';
+    renameBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
     renameBtn.addEventListener('click', ()=>{
       const newLabel = prompt('Nuova etichetta per il marcatore:', m.label);
       if(newLabel && newLabel.trim()){
@@ -728,8 +742,10 @@ function renderMarkers(){
     });
 
     const delBtn = document.createElement('button');
-    delBtn.className = 'small danger';
-    delBtn.textContent = 'Elimina';
+    delBtn.className = 'icon-btn danger';
+    delBtn.setAttribute('aria-label', 'Elimina marcatore');
+    delBtn.title = 'Elimina';
+    delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
     delBtn.addEventListener('click', ()=>{
       if(confirm('Eliminare il marcatore "'+m.label+'"?')){
         track.markers = track.markers.filter(x=>x.id !== m.id);
