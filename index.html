@@ -420,8 +420,8 @@
       <button class="small" id="btn-seek-fwd5">+5s</button>
     </div>
     <div class="row">
-      <label for="goto-time-input" class="goto-label">Vai a (mm:ss)</label>
-      <input type="text" id="goto-time-input" placeholder="es. 01:23" inputmode="numeric">
+      <label for="goto-time-input" class="goto-label">Vai a (min+sec)</label>
+      <input type="text" id="goto-time-input" placeholder="es. 123 per 1:23" inputmode="numeric">
       <button id="btn-goto-time">Vai</button>
     </div>
     <div class="row">
@@ -1117,8 +1117,15 @@ function parseMinSec(text){
     if(isNaN(m) || isNaN(s)) return null;
     return m*60 + s;
   }
-  const s = parseInt(text, 10);
-  return isNaN(s) ? null : s;
+  // Senza i due punti: le ultime due cifre sono i secondi, le restanti i minuti.
+  // Es. "123" -> 1:23, "45" -> 0:45, "5" -> 0:05.
+  if(!/^\d+$/.test(text)) return null;
+  const secondsStr = text.slice(-2);
+  const minutesStr = text.slice(0, -2) || '0';
+  const m = parseInt(minutesStr, 10);
+  const s = parseInt(secondsStr, 10);
+  if(isNaN(m) || isNaN(s)) return null;
+  return m*60 + s;
 }
 
 el('btn-seek-back5').addEventListener('click', ()=> adjustCurrentTime(-5));
@@ -1129,7 +1136,7 @@ el('btn-seek-fwd5').addEventListener('click', ()=> adjustCurrentTime(5));
 el('btn-goto-time').addEventListener('click', ()=>{
   if(!getCurrentTrack()){ showToast('Seleziona prima una traccia.'); return; }
   const seconds = parseMinSec(el('goto-time-input').value);
-  if(seconds === null){ showToast('Formato non valido. Usa mm:ss, es. 01:23.'); return; }
+  if(seconds === null){ showToast('Formato non valido. Scrivi solo cifre, es. 123 per 1:23.'); return; }
   setCurrentTime(seconds);
 });
 el('goto-time-input').addEventListener('keydown', (e)=>{
