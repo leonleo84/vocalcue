@@ -560,7 +560,7 @@
     </details>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261024174158</p>
+  <p class="version-tag">Versione: 1.0.20261024175555</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -907,7 +907,9 @@ el('btn-add-file-track').addEventListener('click', async ()=>{
   const keepInBrowser = el('keep-in-browser').checked;
 
   const defaultName = file.name.replace(/\.[^/.]+$/, '');
-  const trackName = prompt('Nome per questa traccia:', defaultName) || defaultName;
+  const namePromptResult = prompt('Nome per questa traccia:', defaultName);
+  if(namePromptResult === null) return; // l'utente ha annullato l'aggiunta della traccia
+  const trackName = namePromptResult.trim() || defaultName;
 
   const track = {
     id: uid(),
@@ -1034,7 +1036,9 @@ el('btn-add-youtube-track').addEventListener('click', ()=>{
   const url = el('youtube-url-input').value.trim();
   const vid = extractYoutubeId(url);
   if(!vid){ showToast('Link YouTube non valido.'); return; }
-  const trackName = prompt('Nome per questa traccia:', 'Base YouTube') || 'Base YouTube';
+  const ytNamePromptResult = prompt('Nome per questa traccia:', 'Base YouTube');
+  if(ytNamePromptResult === null) return; // l'utente ha annullato l'aggiunta della traccia
+  const trackName = ytNamePromptResult.trim() || 'Base YouTube';
   const track = {
     id: uid(),
     name: trackName,
@@ -1330,9 +1334,11 @@ el('btn-add-marker').addEventListener('click', ()=>{
   const track = getCurrentTrack();
   if(!track){ showToast('Seleziona prima una traccia.'); return; }
   const time = getCurrentTime();
-  const label = prompt('Etichetta per questo marcatore:', fmtTime(time)) || fmtTime(time);
+  const promptResult = prompt('Etichetta per questo marcatore:', fmtTime(time));
+  if(promptResult === null) return; // l'utente ha annullato
+  const label = promptResult.trim() || fmtTime(time);
   track.markers = track.markers || [];
-  track.markers.push({ id: uid(), label: label.trim(), time });
+  track.markers.push({ id: uid(), label, time });
   saveConfig();
   renderMarkers();
 });
