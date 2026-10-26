@@ -661,7 +661,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261026102948</p>
+  <p class="version-tag">Versione: 1.0.20261026103403</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1602,6 +1602,12 @@ el('import-file-input').addEventListener('change', async (e)=>{
     if(!parsed.projects || !Array.isArray(parsed.projects)) throw new Error('Formato non valido');
     const confirmed = confirm('Importare questa configurazione? Sostituirà quella attuale.');
     if(!confirmed){ e.target.value = ''; return; }
+    // Il file esportato non contiene mai i file audio salvati nel browser (solo i metadati):
+    // azzeriamo sempre questo flag, altrimenti un'importazione su un altro dispositivo
+    // dichiarerebbe erroneamente "già in memoria" una traccia che lì non esiste.
+    parsed.projects.forEach(p=>{
+      (p.tracks || []).forEach(t=>{ t.storedInBrowser = false; });
+    });
     config.projects = parsed.projects;
     currentProjectId = null;
     currentTrackId = null;
