@@ -439,6 +439,32 @@
     display:flex; justify-content:space-between; align-items:center;
     padding:8px 0; border-bottom:1px solid var(--line);
   }
+  .picker-select-all-row{
+    display:flex;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .link-btn{
+    background: none;
+    border: none;
+    padding: 2px 0;
+    font-size: 0.8rem;
+    color: var(--accent-2);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .link-btn:hover{ color: var(--accent); border-color: transparent; }
+  .picker-list{ max-height: 260px; overflow-y: auto; }
+  .picker-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+  }
+  .picker-item input{ width:auto; margin:0; flex-shrink:0; }
+  .picker-list li:last-child .picker-item{ border-bottom:none; }
   .toast{
     position:fixed;
     bottom: 18px; left:50%;
@@ -640,7 +666,8 @@
 
         <h3>6. Esportare/importare la configurazione — il tuo unico vero salvataggio</h3>
         <p>Progetti, tracce e marcatori vengono tenuti solo nella memoria di questo browser su questo dispositivo: non c'è alcun salvataggio automatico altrove. Se svuoti la cache, disinstalli il browser, cambi telefono o semplicemente quella memoria viene cancellata, perdi tutto senza preavviso.</p>
-        <p>Per questo motivo, "Esporta configurazione" (che trovi nel menu, alla voce <strong>"Configurazione"</strong>) non è un'opzione solo per trasferire i dati su un altro dispositivo: è <strong>l'unico modo per avere una copia di sicurezza reale</strong> del tuo lavoro. Usalo regolarmente — ad esempio dopo ogni sessione in cui aggiungi tracce o marcatori — e conserva il file JSON scaricato in un posto sicuro (es. email a te stesso, Google Drive). "Importa configurazione", nella stessa sezione, ricarica quel file per ripristinare tutto, su questo dispositivo o su un altro.</p>
+        <p>Per questo motivo, "Esporta progetti…" (che trovi nel menu, alla voce <strong>"Configurazione"</strong>) non è un'opzione solo per trasferire i dati su un altro dispositivo: è <strong>l'unico modo per avere una copia di sicurezza reale</strong> del tuo lavoro. Usalo regolarmente — ad esempio dopo ogni sessione in cui aggiungi tracce o marcatori. Alla pressione del pulsante ti verrà chiesto quali progetti includere nel file esportato: puoi esportarli tutti o solo quelli che ti interessano in quel momento. Conserva il file JSON scaricato in un posto sicuro (es. email a te stesso, Google Drive).</p>
+        <p>"Importa progetti…", nella stessa sezione, legge un file esportato in precedenza e ti mostra quali progetti contiene, lasciandoti scegliere quali aggiungere: quelli selezionati vengono inseriti come nuovi progetti, senza toccare quelli già presenti nell'app — utile sia per un ripristino completo sia per prendere solo le canzoni di un collega o di un altro tuo dispositivo.</p>
 
         <h3>7. Link YouTube</h3>
         <p>Per una traccia da YouTube, incolla il link: il video resta visibile nella pagina, ma puoi comunque segnare punti precisi e farli ripartire da lì come con un file audio.</p>
@@ -654,14 +681,14 @@
 
     <div id="panel-config" class="inst-body hidden">
       <div class="row">
-        <button id="btn-export">Esporta configurazione</button>
-        <button id="btn-import">Importa configurazione</button>
+        <button id="btn-export">Esporta progetti…</button>
+        <button id="btn-import">Importa progetti…</button>
       </div>
       <input type="file" id="import-file-input" accept="application/json" class="hidden">
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261026104158 — BUILD DI TEST (dati separati da quelli reali)</p>
+  <p class="version-tag">Versione: 1.0.20261026153600 — BUILD DI TEST (dati separati da quelli reali)</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1635,16 +1662,77 @@ el('btn-add-marker').addEventListener('click', ()=>{
   renderMarkers();
 });
 
-// ---------- Export / Import ----------
+// ---------- Export / Import selettivi per progetto ----------
+function buildPickerModal(title, note, projectsInfo, confirmLabel, onConfirm){
+  const root = el('modal-root');
+  const modal = document.createElement('div');
+  modal.className = 'modal-backdrop';
+  modal.innerHTML = `
+    <div class="modal">
+      <h3>${title}</h3>
+      ${note ? '<p>' + note + '</p>' : ''}
+      <div class="picker-select-all-row">
+        <button type="button" class="link-btn" id="picker-select-all">Seleziona tutti</button>
+        <button type="button" class="link-btn" id="picker-deselect-all">Deseleziona tutti</button>
+      </div>
+      <ul id="picker-list" class="picker-list"></ul>
+      <div class="row">
+        <button class="primary" id="picker-confirm">${confirmLabel}</button>
+        <button class="ghost" id="picker-cancel">Annulla</button>
+      </div>
+    </div>`;
+  root.appendChild(modal);
+  const list = modal.querySelector('#picker-list');
+  projectsInfo.forEach((info, idx)=>{
+    const li = document.createElement('li');
+    const label = document.createElement('label');
+    label.className = 'picker-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = true;
+    cb.dataset.idx = idx;
+    const span = document.createElement('span');
+    span.textContent = info.name + '  (' + info.trackCount + (info.trackCount === 1 ? ' traccia' : ' tracce') + ')';
+    label.appendChild(cb);
+    label.appendChild(span);
+    li.appendChild(label);
+    list.appendChild(li);
+  });
+  modal.querySelector('#picker-select-all').addEventListener('click', ()=>{
+    modal.querySelectorAll('input[type=checkbox]').forEach(cb=> cb.checked = true);
+  });
+  modal.querySelector('#picker-deselect-all').addEventListener('click', ()=>{
+    modal.querySelectorAll('input[type=checkbox]').forEach(cb=> cb.checked = false);
+  });
+
+  function close(){ root.removeChild(modal); }
+  modal.querySelector('#picker-confirm').addEventListener('click', ()=>{
+    const checkedIdx = Array.from(modal.querySelectorAll('input[type=checkbox]:checked')).map(cb=>parseInt(cb.dataset.idx, 10));
+    if(checkedIdx.length === 0){ showToast('Seleziona almeno un progetto.'); return; }
+    close();
+    onConfirm(checkedIdx);
+  });
+  modal.querySelector('#picker-cancel').addEventListener('click', close);
+}
+
 el('btn-export').addEventListener('click', ()=>{
-  const data = JSON.stringify({ projects: config.projects }, null, 2);
-  const blob = new Blob([data], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'vocalcue-config.json';
-  a.click();
-  URL.revokeObjectURL(url);
+  if(config.projects.length === 0){ showToast('Non ci sono progetti da esportare.'); return; }
+  const sorted = [...config.projects].sort((a,b)=> a.name.localeCompare(b.name, 'it', {sensitivity:'base'}));
+  const info = sorted.map(p=> ({ name: p.name, trackCount: p.tracks.length }));
+  buildPickerModal('Scegli i progetti da esportare', null, info, 'Esporta selezionati', (checkedIdx)=>{
+    const selected = checkedIdx.map(i=> sorted[i]);
+    const data = JSON.stringify({ projects: selected }, null, 2);
+    const blob = new Blob([data], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = selected.length === 1
+      ? 'vocalcue-' + selected[0].name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.json'
+      : 'vocalcue-config.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(selected.length + (selected.length === 1 ? ' progetto esportato.' : ' progetti esportati.'));
+  });
 });
 
 el('btn-import').addEventListener('click', ()=> el('import-file-input').click());
@@ -1654,22 +1742,44 @@ el('import-file-input').addEventListener('change', async (e)=>{
   try{
     const text = await file.text();
     const parsed = JSON.parse(text);
-    if(!parsed.projects || !Array.isArray(parsed.projects)) throw new Error('Formato non valido');
-    const confirmed = confirm('Importare questa configurazione? Sostituirà quella attuale.');
-    if(!confirmed){ e.target.value = ''; return; }
-    // Il file esportato non contiene mai i file audio salvati nel browser (solo i metadati):
-    // azzeriamo sempre questo flag, altrimenti un'importazione su un altro dispositivo
-    // dichiarerebbe erroneamente "già in memoria" una traccia che lì non esiste.
-    parsed.projects.forEach(p=>{
-      (p.tracks || []).forEach(t=>{ t.storedInBrowser = false; });
-    });
-    config.projects = parsed.projects;
-    currentProjectId = null;
-    currentTrackId = null;
-    saveConfig();
-    renderProjectSelect();
-    renderTrackSelect();
-    showToast('Configurazione importata.');
+    if(!parsed.projects || !Array.isArray(parsed.projects) || parsed.projects.length === 0) throw new Error('Formato non valido');
+    const info = parsed.projects.map(p=> ({ name: p.name, trackCount: (p.tracks || []).length }));
+    buildPickerModal(
+      'Scegli i progetti da importare',
+      'Un progetto con lo stesso nome di uno già presente verrà sostituito; gli altri vengono aggiunti come nuovi.',
+      info,
+      'Importa selezionati',
+      (checkedIdx)=>{
+        let importedCount = 0;
+        checkedIdx.forEach(i=>{
+          const p = parsed.projects[i];
+          const existingIndex = config.projects.findIndex(ep => ep.name.trim().toLowerCase() === (p.name || '').trim().toLowerCase());
+          if(existingIndex !== -1){
+            const overwrite = confirm('Esiste già un progetto chiamato "' + p.name + '". Vuoi sostituirlo con quello importato?\n\nOK = sostituisci (le tracce e i marcatori attuali di quel progetto andranno persi)\nAnnulla = salta questo progetto, lasciando quello esistente invariato');
+            if(!overwrite) return;
+          }
+          p.id = uid();
+          // Il file esportato non contiene mai i file audio salvati nel browser (solo i metadati):
+          // azzeriamo sempre questo flag, altrimenti un'importazione su un altro dispositivo
+          // dichiarerebbe erroneamente "già in memoria" una traccia che lì non esiste.
+          (p.tracks || []).forEach(t=>{ t.id = uid(); t.storedInBrowser = false; });
+          if(existingIndex !== -1){
+            config.projects[existingIndex] = p;
+          } else {
+            config.projects.push(p);
+          }
+          importedCount++;
+        });
+        saveConfig();
+        renderProjectSelect();
+        renderTrackSelect();
+        if(importedCount > 0){
+          showToast(importedCount + (importedCount === 1 ? ' progetto importato.' : ' progetti importati.'));
+        } else {
+          showToast('Nessun progetto importato.');
+        }
+      }
+    );
   }catch(err){
     showToast('File di configurazione non valido.');
   }
