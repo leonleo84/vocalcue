@@ -624,7 +624,7 @@
 
         <h3>2. La cartella VocalCue</h3>
         <p>Non è un requisito tecnico dell'app — puoi tenere i file audio ovunque preferisci — ma ti consigliamo di creare un'unica cartella dedicata, chiamata ad esempio <code>VocalCue</code>, sul tuo dispositivo (o dentro Google Drive, se vuoi tenerla sincronizzata tra più dispositivi). Avere tutti i file in un solo posto rende molto più veloce ritrovarli ogni volta che l'app te li richiede, invece di doverli cercare tra cartelle diverse.</p>
-        <p>Su qualsiasi piattaforma — computer, Android o iPhone — il funzionamento è lo stesso: copia prima il file audio nella cartella VocalCue, poi selezionalo dall'app quando richiesto. Il nome del file atteso è sempre indicato accanto al nome della traccia nel menu a tendina, così sai sempre quale cercare.</p>
+        <p>Su qualsiasi piattaforma — computer, Android o iPhone — il funzionamento è lo stesso: copia prima il file audio nella cartella VocalCue, poi selezionalo dall'app quando richiesto. Il nome del file atteso è sempre indicato accanto al nome della traccia nel menu a tendina, così sai sempre quale cercare. Come controllo aggiuntivo, l'app ricorda la dimensione e la durata del file usato per creare i marcatori: se un giorno selezioni un file che sembra diverso, ti chiederà conferma esplicita prima di usarlo, dandoti la possibilità di sceglierne un altro.</p>
         <p><strong>Selezionare un file da Google Drive su iPhone:</strong> se Drive non compare nella schermata di selezione, apri l'app File di iOS, tocca "Sfoglia" in basso, poi i tre puntini (o "Modifica") in alto a destra e attiva l'interruttore accanto a "Google Drive" — da quel momento resterà visibile ogni volta che scegli un file, anche da VocalCue. Serve avere l'app Google Drive installata e l'accesso effettuato con il proprio account.</p>
         <p><strong>Nota:</strong> il selettore di file mostra tutti i file, non solo quelli che il telefono riconosce come audio — questo evita che alcuni mp3 (specialmente quelli scaricati con convertitori online) risultino erroneamente non selezionabili. Scegli comunque il file audio giusto: se per errore ne scegli uno non riproducibile, l'app te lo segnala.</p>
 
@@ -661,7 +661,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261026103403</p>
+  <p class="version-tag">Versione: 1.0.20261026104158</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1414,6 +1414,19 @@ async function loadTrackIntoPlayer(track, directFile){
   currentPlayableBlob = fileToPlay;
   updateKeepCurrentButton(track);
   setAddMarkerEnabled(true);
+
+  // Alla creazione della traccia (directFile presente), registriamo un'impronta del file
+  // — dimensione e durata — per poter avvisare in futuro se, riselezionando manualmente
+  // il file, si scegliesse per errore un brano diverso.
+  if(directFile){
+    track.fileSize = directFile.size;
+    const onMeta = ()=>{
+      track.fileDuration = Math.round(audio.duration) || null;
+      saveConfig();
+      audio.removeEventListener('loadedmetadata', onMeta);
+    };
+    audio.addEventListener('loadedmetadata', onMeta);
+  }
 }
 
 function promptManualFile(track){
@@ -1432,15 +1445,57 @@ el('manual-reselect-input').addEventListener('change', (e)=>{
   const f = e.target.files[0];
   if(!f) return;
   const audio = el('audio-player');
+  const track = getCurrentTrack();
+
   if(currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
   currentObjectUrl = URL.createObjectURL(f);
   audio.src = currentObjectUrl;
-  audio.play().catch(()=>{});
-  el('manual-select-box').classList.add('hidden');
-  el('audio-player-box').classList.remove('hidden');
-  currentPlayableBlob = f;
-  updateKeepCurrentButton(getCurrentTrack());
-  setAddMarkerEnabled(true);
+
+  function finalizeSelection(){
+    audio.play().catch(()=>{});
+    el('manual-select-box').classList.add('hidden');
+    el('audio-player-box').classList.remove('hidden');
+    currentPlayableBlob = f;
+    updateKeepCurrentButton(getCurrentTrack());
+    setAddMarkerEnabled(true);
+  }
+
+  function revertSelection(){
+    if(currentObjectUrl){ URL.revokeObjectURL(currentObjectUrl); currentObjectUrl = null; }
+    audio.removeAttribute('src');
+    // Il box di selezione manuale resta visibile: l'utente può scegliere un altro file.
+  }
+
+  if(track && track.fileSize != null){
+    // Abbiamo già un'impronta salvata: verifichiamo che il file scelto corrisponda.
+    const sizeDiffPct = track.fileSize > 0 ? Math.abs(f.size - track.fileSize) / track.fileSize : 0;
+    const onMeta = ()=>{
+      audio.removeEventListener('loadedmetadata', onMeta);
+      const durationMismatch = track.fileDuration != null && Math.abs(Math.round(audio.duration) - track.fileDuration) > 2;
+      const sizeMismatch = sizeDiffPct > 0.05;
+      if(durationMismatch || sizeMismatch){
+        const proceed = confirm('Questo file sembra diverso da quello usato per creare i marcatori di questa traccia (durata o dimensione non corrispondono).\n\nOK = usa comunque questo file\nAnnulla = scegli un altro file');
+        if(proceed) finalizeSelection(); else revertSelection();
+      } else {
+        finalizeSelection();
+      }
+    };
+    audio.addEventListener('loadedmetadata', onMeta);
+  } else if(track){
+    // Nessuna impronta precedente (traccia creata prima di questo controllo, o importata
+    // da un altro dispositivo): la registriamo ora per i controlli futuri.
+    track.fileSize = f.size;
+    const onMeta = ()=>{
+      track.fileDuration = Math.round(audio.duration) || null;
+      saveConfig();
+      audio.removeEventListener('loadedmetadata', onMeta);
+      finalizeSelection();
+    };
+    audio.addEventListener('loadedmetadata', onMeta);
+  } else {
+    finalizeSelection();
+  }
+
   e.target.value = '';
 });
 
