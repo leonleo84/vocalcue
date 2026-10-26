@@ -219,6 +219,23 @@
     text-align:center;
     margin: 8px 0;
   }
+  .memory-usage-text{
+    margin-bottom: 6px;
+  }
+  .memory-progress-track{
+    width: 100%;
+    height: 8px;
+    background: var(--bg-deep);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .memory-progress-fill{
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+    transition: width 0.2s ease;
+  }
   .memory-list{
     list-style:none;
     margin:0; padding:0;
@@ -564,7 +581,7 @@
       <p class="filename-hint" id="selected-file-name">Nessun file selezionato</p>
       <div class="checkbox-row">
         <input type="checkbox" id="keep-in-browser">
-        <label for="keep-in-browser" style="margin:0;">Mantieni in memoria su questo dispositivo (max 15 file, in totale)</label>
+        <label for="keep-in-browser" style="margin:0;">Mantieni in memoria su questo dispositivo (fino a 250 MB in totale)</label>
       </div>
       <button class="primary" id="btn-add-file-track" disabled>Aggiungi traccia da file</button>
     </div>
@@ -615,8 +632,8 @@
         <p>Metti in pausa la traccia nel punto che vuoi memorizzare e tocca "Segna questo punto": ti verrà chiesta un'etichetta (es. "Ritornello"). Tocca il pulsante play accanto a un marcatore nella lista per far ripartire la traccia esattamente da lì. Ogni marcatore può essere rinominato o eliminato singolarmente.</p>
 
         <h3>4. "Mantieni in memoria su questo dispositivo"</h3>
-        <p>Opzione per evitare di riselezionare il file ogni volta: salva il file audio direttamente nel browser, fino a un massimo di 15 file in totale su tutti i progetti. Se provi ad aggiungerne un sedicesimo, l'app ti chiederà quale dei 15 eliminare per fare spazio.</p>
-        <p>Nel menu, la voce <strong>"Memoria dispositivo"</strong> mostra l'elenco di tutte le tracce attualmente salvate in questo modo, con nome, dimensione e data di salvataggio, e quante ne stai usando sul totale di 15. Da lì puoi rimuoverne una in qualsiasi momento toccando l'icona del cestino accanto ad essa: questo libera <strong>spazio</strong> nell'app, ma <strong>non elimina la traccia dall'app</strong> — i suoi marcatori restano intatti, semplicemente la prossima volta che la selezioni ti verrà richiesto di riselezionare il file audio manualmente, come per qualsiasi altra traccia non mantenuta in memoria.</p>
+        <p>Opzione per evitare di riselezionare il file ogni volta: salva il file audio direttamente nel browser, fino a un totale di 250 MB su tutti i progetti insieme. Se lo spazio non basta per una nuova traccia, l'app ti chiederà quale traccia già salvata rimuovere per fare posto.</p>
+        <p>Nel menu, la voce <strong>"Memoria dispositivo"</strong> mostra l'elenco di tutte le tracce attualmente salvate in questo modo, con nome, dimensione e data di salvataggio, e quanto spazio stai occupando sul totale di 250 MB disponibili. Da lì puoi rimuoverne una in qualsiasi momento toccando l'icona del cestino accanto ad essa: questo libera <strong>spazio</strong> nell'app, ma <strong>non elimina la traccia dall'app</strong> — i suoi marcatori restano intatti, semplicemente la prossima volta che la selezioni ti verrà richiesto di riselezionare il file audio manualmente, come per qualsiasi altra traccia non mantenuta in memoria.</p>
 
         <h3>5. Eliminare una traccia o un progetto</h3>
         <p>Eliminare una traccia la rimuove solo dall'app: il file audio resta nella cartella (locale o su Drive) e va rimosso manualmente se non serve più. Eliminare un progetto elimina tutte le sue tracce e marcatori.</p>
@@ -630,7 +647,7 @@
     </div>
 
     <div id="panel-memory" class="inst-body hidden">
-      <p id="memory-usage-summary" class="filename-hint"></p>
+      <div id="memory-usage-summary" class="filename-hint"></div>
       <ul class="memory-list" id="memory-list"></ul>
       <p class="empty-note hidden" id="memory-empty">Nessuna traccia attualmente mantenuta in memoria su questo dispositivo.</p>
     </div>
@@ -644,7 +661,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261024182642</p>
+  <p class="version-tag">Versione: 1.0.20261026102948</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -657,7 +674,7 @@
 
 // ---------- State ----------
 const CONFIG_KEY = 'vocalcue_config_v2';
-const MAX_BROWSER_FILES = 15;
+const MAX_BROWSER_STORAGE_BYTES = 250 * 1024 * 1024;
 let config = { projects: [] }; // {id,name,tracks:[{id,name,type,fileName,youtubeId,markers:[{id,label,time}],storedInBrowser}]}
 let currentProjectId = null;
 let currentTrackId = null;
@@ -989,18 +1006,8 @@ function refreshMemoryListIfVisible(){
   if(!el('panel-memory').classList.contains('hidden')) renderMemoryList();
 }
 
-async function renderMemoryList(){
-  const list = el('memory-list');
-  const empty = el('memory-empty');
-  const summary = el('memory-usage-summary');
-  list.innerHTML = '';
+async function getMemoryItems(){
   const keys = await idbAllKeys('blobs');
-  summary.textContent = keys.length + ' di ' + MAX_BROWSER_FILES + ' tracce mantenute in memoria su questo dispositivo.';
-  if(keys.length === 0){
-    empty.classList.remove('hidden');
-    return;
-  }
-  empty.classList.add('hidden');
   const items = [];
   for(const k of keys){
     const rec = await idbGet('blobs', k);
@@ -1014,6 +1021,29 @@ async function renderMemoryList(){
       savedAt: rec ? rec.savedAt : 0
     });
   }
+  return items;
+}
+
+function formatMb(bytes){
+  return (bytes / (1024*1024)).toFixed(1).replace(/\.0$/, '') + ' MB';
+}
+
+async function renderMemoryList(){
+  const list = el('memory-list');
+  const empty = el('memory-empty');
+  const summary = el('memory-usage-summary');
+  list.innerHTML = '';
+  const items = await getMemoryItems();
+  const totalBytes = items.reduce((s,it)=> s + it.size, 0);
+  const pct = Math.min(100, Math.round((totalBytes / MAX_BROWSER_STORAGE_BYTES) * 100));
+  summary.innerHTML =
+    '<div class="memory-usage-text">' + formatMb(totalBytes) + ' di ' + formatMb(MAX_BROWSER_STORAGE_BYTES) + ' usati (' + items.length + ' tracce)</div>' +
+    '<div class="memory-progress-track"><div class="memory-progress-fill" style="width:' + pct + '%"></div></div>';
+  if(items.length === 0){
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
   items.sort((a,b)=> a.name.localeCompare(b.name, 'it', {sensitivity:'base'}));
   items.forEach(it=>{
     const li = document.createElement('li');
@@ -1141,16 +1171,25 @@ el('btn-add-file-track').addEventListener('click', async ()=>{
 });
 
 async function storeBlobWithLimit(trackId, file, trackName){
-  const keys = await idbAllKeys('blobs');
-  if(keys.length >= MAX_BROWSER_FILES && !keys.includes(trackId)){
-    const toEvict = await pickBlobToEvict(keys);
+  if(file.size > MAX_BROWSER_STORAGE_BYTES){
+    showToast('Questo file da solo (' + formatMb(file.size) + ') supera il limite totale di 250 MB: non può essere mantenuto in memoria.');
+    return false;
+  }
+  let items = await getMemoryItems();
+  let othersTotal = items.filter(it=>it.key !== trackId).reduce((s,it)=> s + it.size, 0);
+
+  while(othersTotal + file.size > MAX_BROWSER_STORAGE_BYTES){
+    const evictable = items.filter(it=>it.key !== trackId);
+    if(evictable.length === 0) return false; // non dovrebbe succedere, già controllato sopra
+    const toEvict = await pickBlobToEvict(evictable, othersTotal + file.size - MAX_BROWSER_STORAGE_BYTES);
     if(toEvict === null) return false;
     await idbDelete('blobs', toEvict);
-    for(const p of config.projects){
-      const evictedTrack = p.tracks.find(t=>t.id === toEvict);
-      if(evictedTrack) evictedTrack.storedInBrowser = false;
-    }
+    const evictedTrack = findTrackById(toEvict);
+    if(evictedTrack) evictedTrack.storedInBrowser = false;
+    items = items.filter(it=>it.key !== toEvict);
+    othersTotal = items.filter(it=>it.key !== trackId).reduce((s,it)=> s + it.size, 0);
   }
+
   await idbPut('blobs', trackId, { blob:file, name:trackName, fileName:file.name, savedAt: Date.now(), size:file.size });
   saveConfig();
   refreshMemoryListIfVisible();
@@ -1173,31 +1212,25 @@ function findTrackWithProjectById(trackId){
   return null;
 }
 
-function pickBlobToEvict(keys){
-  return new Promise(async (resolve)=>{
+function pickBlobToEvict(items, bytesNeeded){
+  return new Promise((resolve)=>{
     const root = el('modal-root');
-    const items = [];
-    for(const k of keys){
-      const rec = await idbGet('blobs', k);
-      const t = findTrackById(k);
-      items.push({ key:k, name: (t ? t.name : (rec && rec.name) || k), size: rec ? rec.size : 0, savedAt: rec ? rec.savedAt : 0 });
-    }
     const modal = document.createElement('div');
     modal.className = 'modal-backdrop';
     modal.innerHTML = `
       <div class="modal">
-        <h3>Limite di 15 file raggiunto</h3>
-        <p>Scegli quale file rimuovere dalla memoria del browser per fare spazio al nuovo.</p>
+        <h3>Spazio insufficiente</h3>
+        <p>Serve liberare almeno ${formatMb(Math.max(bytesNeeded, 0))} per salvare questa traccia. Scegli quale rimuovere dalla memoria del dispositivo.</p>
         <ul id="evict-list"></ul>
         <button class="ghost" id="evict-cancel">Annulla</button>
       </div>`;
     root.appendChild(modal);
     const list = modal.querySelector('#evict-list');
-    items.forEach(it=>{
+    const sorted = [...items].sort((a,b)=> b.size - a.size);
+    sorted.forEach(it=>{
       const li = document.createElement('li');
-      const sizeKb = Math.round(it.size/1024);
       const date = it.savedAt ? new Date(it.savedAt).toLocaleDateString('it-IT') : '';
-      li.innerHTML = `<span>${it.name} — ${sizeKb} KB — ${date}</span>`;
+      li.innerHTML = `<span>${it.name}${it.projectName ? ' (' + it.projectName + ')' : ''} — ${formatMb(it.size)}${date ? ' — ' + date : ''}</span>`;
       const btn = document.createElement('button');
       btn.className = 'small danger';
       btn.textContent = 'Rimuovi questo';
@@ -1594,6 +1627,12 @@ async function init(){
   setAddMarkerEnabled(false);
   renderProjectSelect();
   renderTrackSelect();
+  // Chiede al browser di non cancellare automaticamente i dati salvati per liberare spazio,
+  // se il dispositivo dovesse scarseggiare di memoria. Silenzioso: nessun effetto visibile
+  // per l'utente se non supportato o già concesso.
+  if(navigator.storage && navigator.storage.persist){
+    try{ await navigator.storage.persist(); }catch(e){ /* ignora, non critico */ }
+  }
 }
 init();
 
