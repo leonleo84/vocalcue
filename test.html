@@ -77,11 +77,19 @@
   }
   header{
     display:flex;
-    align-items:baseline;
-    justify-content:space-between;
+    align-items:center;
+    gap: 12px;
     margin-bottom:22px;
     border-bottom:1px solid var(--line);
     padding-bottom:16px;
+  }
+  .header-menu-btn{
+    background: none;
+    border: none;
+    padding: 4px;
+    height: auto;
+    color: var(--text);
+    flex-shrink: 0;
   }
   .brand{
     font-family: "Playfair Display", Georgia, serif;
@@ -127,11 +135,17 @@
   button{
     font-family: inherit;
     font-size: 0.9rem;
+    line-height: 1.2;
     border-radius: 8px;
     border: 1px solid var(--line);
     background: var(--surface-raised);
     color: var(--text);
-    padding: 9px 14px;
+    padding: 0 14px;
+    height: 40px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor:pointer;
   }
   button:hover{ border-color: var(--accent-dim); }
@@ -161,10 +175,11 @@
     background: transparent;
   }
   button.small{
-    padding: 5px 9px;
+    padding: 0 9px;
+    height: 30px;
     font-size: 0.78rem;
   }
-  .row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 10px; }
+  .row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom: 10px; }
   .row .grow{ flex: 2 1 auto; }
   .row .shrink{ flex: 1 1 auto; }
   .row:last-child{ margin-bottom: 0; }
@@ -298,35 +313,64 @@
     border-bottom: 1px solid var(--line);
   }
   .marker-list li:last-child{ border-bottom:none; }
-  .hamburger-menu{
-    position: relative;
-    margin-bottom: 14px;
+  .menu-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
   }
-  .hamburger-btn{
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    justify-content: flex-start;
-    background: var(--bg-deep);
+  .menu-overlay.open{
+    opacity: 1;
+    pointer-events: auto;
   }
   .menu-dropdown{
-    position: absolute;
-    top: calc(100% + 6px);
+    position: fixed;
+    top: 0;
     left: 0;
-    right: 0;
+    bottom: 0;
+    width: 260px;
+    max-width: 78vw;
     background: var(--surface-raised);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    overflow: hidden;
-    z-index: 10;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
+    z-index: 50;
+    box-shadow: 4px 0 18px rgba(0,0,0,0.4);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    padding-top: 8px;
+  }
+  .menu-dropdown.open{
+    transform: translateX(0);
+  }
+  .menu-sidebar-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 4px;
+  }
+  .menu-sidebar-title{
+    font-family: "Playfair Display", Georgia, serif;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .menu-close-btn{
+    background:none;
+    border:none;
+    padding:4px;
+    height: auto;
+    color: var(--text-dim);
   }
   .menu-item{
     display: flex;
     align-items: center;
     gap: 10px;
     width: 100%;
+    height: auto;
     text-align: left;
     background: none;
     border: none;
@@ -418,6 +462,7 @@
     background: none;
     border: none;
     padding: 4px 0;
+    height: auto;
     font-size: 0.78rem;
     color: var(--text-dim);
     text-decoration: underline;
@@ -471,6 +516,7 @@
     background: none;
     border: none;
     padding: 2px 0;
+    height: auto;
     font-size: 0.8rem;
     color: var(--accent-2);
     text-decoration: underline;
@@ -543,9 +589,29 @@
 <div class="wrap">
 
   <header>
+    <button id="menu-toggle" class="header-menu-btn" aria-label="Apri menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
+    </button>
     <div class="brand">Vocal<span>Cue</span></div>
   </header>
 
+  <div id="menu-overlay" class="menu-overlay"></div>
+  <div id="menu-dropdown" class="menu-dropdown">
+    <div class="menu-sidebar-header">
+      <span class="menu-sidebar-title">VocalCue</span>
+      <button id="menu-close" class="menu-close-btn" aria-label="Chiudi menu">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <button class="menu-item active" id="tab-projects"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Progetti</span></button>
+    <button class="menu-item" id="tab-info"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg><span>Informazioni</span></button>
+    <button class="menu-item" id="tab-instructions"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg><span>Istruzioni</span></button>
+    <button class="menu-item" id="tab-memory"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="18" x2="15" y2="18"/></svg><span>Memoria dispositivo</span></button>
+    <button class="menu-item" id="tab-config"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1z"/></svg><span>Configurazione</span></button>
+    <button class="menu-item" id="tab-release"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M5 10l7-4 7 4-7 4-7-4Z"/><path d="M5 10v8l7 4 7-4v-8"/></svg><span>Note di rilascio</span></button>
+  </div>
+
+  <div id="view-projects">
   <section>
     <h2>Progetto</h2>
     <div class="project-bar">
@@ -642,28 +708,17 @@
     </div>
     </details>
   </section>
+  </div>
 
-  <section>
-    <div class="hamburger-menu">
-      <button id="menu-toggle" class="hamburger-btn" aria-label="Apri menu" aria-expanded="false">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
-        <span id="menu-toggle-label">Informazioni</span>
-      </button>
-      <div id="menu-dropdown" class="menu-dropdown hidden">
-        <button class="menu-item active" id="tab-info"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg><span>Informazioni</span></button>
-        <button class="menu-item" id="tab-instructions"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg><span>Istruzioni</span></button>
-        <button class="menu-item" id="tab-memory"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="18" x2="15" y2="18"/></svg><span>Memoria dispositivo</span></button>
-        <button class="menu-item" id="tab-config"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1z"/></svg><span>Configurazione</span></button>
-        <button class="menu-item" id="tab-release"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M5 10l7-4 7 4-7 4-7-4Z"/><path d="M5 10v8l7 4 7-4v-8"/></svg><span>Note di rilascio</span></button>
-      </div>
-    </div>
-
-    <div id="panel-info" class="inst-body">
+  <section id="view-info" class="hidden">
+    <div class="inst-body">
       <p>VocalCue è un'app pensata per chi insegna o pratica canto e ha bisogno di richiamare velocemente punti precisi all'interno di una base musicale o di una traccia di accompagnamento — per esempio durante una lezione di canto, le prove di un musical o un corso di coro, quando serve ripartire sempre dagli stessi punti (un ritornello, una strofa, un attacco specifico) senza perdere tempo a cercarli ogni volta a orecchio.</p>
       <p>Le canzoni si organizzano in progetti (una classe, un musical, un corso), ognuno con le proprie tracce. Per ogni traccia — caricata come file audio o tramite un link YouTube — si possono segnare quanti marcatori si vuole, dargli un nome, e richiamarli con un tocco per far ripartire la riproduzione esattamente da lì. L'app funziona da browser su qualsiasi dispositivo (computer, Android, iPhone), può essere aggiunta alla schermata Home come una vera app, e tutto il lavoro (progetti, tracce, marcatori) resta salvato sul dispositivo stesso.</p>
     </div>
+  </section>
 
-    <div id="panel-instructions" class="inst-body hidden">
+  <section id="view-instructions" class="hidden">
+    <div class="inst-body">
         <h3>0. Mettere VocalCue comodamente sul telefono</h3>
         <p>Apri l'indirizzo web di VocalCue nel browser del telefono, poi aggiungilo alla schermata Home per usarlo come una vera app. La procedura è simile su qualunque browser — qui sotto trovi Chrome e Safari solo come esempio, ma funziona allo stesso modo anche con altri browser (es. Firefox, Edge, Samsung Internet).</p>
         <p><strong>Android:</strong> apri il link, tocca i tre puntini (o il menu del browser), scegli "Aggiungi a schermata Home". Da quel momento avrai un'icona che apre l'app a schermo intero.</p>
@@ -696,23 +751,36 @@
         <h3>7. Link YouTube</h3>
         <p>Per una traccia da YouTube, incolla il link: il video resta visibile nella pagina, ma puoi comunque segnare punti precisi e farli ripartire da lì come con un file audio.</p>
     </div>
+  </section>
 
-    <div id="panel-memory" class="inst-body hidden">
+  <section id="view-memory" class="hidden">
+    <div class="inst-body">
       <div id="memory-usage-summary" class="filename-hint"></div>
       <ul class="memory-list" id="memory-list"></ul>
       <p class="empty-note hidden" id="memory-empty">Nessuna traccia attualmente mantenuta in memoria su questo dispositivo.</p>
     </div>
+  </section>
 
-    <div id="panel-config" class="inst-body hidden">
+  <section id="view-config" class="hidden">
+    <div class="inst-body">
       <div class="row">
         <button id="btn-export">Esporta progetti…</button>
         <button id="btn-import">Importa progetti…</button>
       </div>
       <input type="file" id="import-file-input" accept="application/json" class="hidden">
     </div>
+  </section>
 
-    <div id="panel-release" class="inst-body hidden">
+  <section id="view-release" class="hidden">
+    <div class="inst-body">
       <ul class="release-list">
+        <li>
+          <div class="release-date">28 ottobre 2026</div>
+          <ul class="release-items">
+            <li>Esportazione e importazione dei progetti ora selettive: puoi scegliere quali selezionare, con sostituzione guidata in caso di nome duplicato.</li>
+            <li>Aggiunta la sezione "Note di rilascio" nel menu, con lo storico delle versioni pubblicate.</li>
+          </ul>
+        </li>
         <li>
           <div class="release-date">26 ottobre 2026</div>
           <ul class="release-items">
@@ -741,7 +809,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261028105750 — BUILD DI TEST (dati separati da quelli reali)</p>
+  <p class="version-tag">Versione: 1.0.20261028115810 — BUILD DI TEST (dati separati da quelli reali)</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1047,36 +1115,34 @@ el('audio-file-input').addEventListener('change', (e)=>{
 });
 
 // ---------- Tabs (Informazioni / Istruzioni / Memoria dispositivo) ----------
-const infoTabLabels = { info: 'Informazioni', instructions: 'Istruzioni', memory: 'Memoria dispositivo', config: 'Configurazione', release: 'Note di rilascio' };
-function selectInfoTab(tab){
-  const tabs = { info: 'tab-info', instructions: 'tab-instructions', memory: 'tab-memory', config: 'tab-config', release: 'tab-release' };
-  const panels = { info: 'panel-info', instructions: 'panel-instructions', memory: 'panel-memory', config: 'panel-config', release: 'panel-release' };
+function selectInfoTab(view){
+  const tabs = { projects: 'tab-projects', info: 'tab-info', instructions: 'tab-instructions', memory: 'tab-memory', config: 'tab-config', release: 'tab-release' };
+  const panels = { projects: 'view-projects', info: 'view-info', instructions: 'view-instructions', memory: 'view-memory', config: 'view-config', release: 'view-release' };
   Object.keys(tabs).forEach(key=>{
-    el(tabs[key]).classList.toggle('active', key === tab);
-    el(panels[key]).classList.toggle('hidden', key !== tab);
+    el(tabs[key]).classList.toggle('active', key === view);
+    el(panels[key]).classList.toggle('hidden', key !== view);
   });
-  el('menu-toggle-label').textContent = infoTabLabels[tab];
   closeInfoMenu();
-  if(tab === 'memory') renderMemoryList();
+  if(view === 'memory') renderMemoryList();
 }
 function openInfoMenu(){
-  el('menu-dropdown').classList.remove('hidden');
+  el('menu-dropdown').classList.add('open');
+  el('menu-overlay').classList.add('open');
   el('menu-toggle').setAttribute('aria-expanded', 'true');
 }
 function closeInfoMenu(){
-  el('menu-dropdown').classList.add('hidden');
+  el('menu-dropdown').classList.remove('open');
+  el('menu-overlay').classList.remove('open');
   el('menu-toggle').setAttribute('aria-expanded', 'false');
 }
 el('menu-toggle').addEventListener('click', (e)=>{
   e.stopPropagation();
-  const isOpen = !el('menu-dropdown').classList.contains('hidden');
+  const isOpen = el('menu-dropdown').classList.contains('open');
   if(isOpen) closeInfoMenu(); else openInfoMenu();
 });
-document.addEventListener('click', (e)=>{
-  if(!el('menu-dropdown').contains(e.target) && e.target !== el('menu-toggle')){
-    closeInfoMenu();
-  }
-});
+el('menu-close').addEventListener('click', closeInfoMenu);
+el('menu-overlay').addEventListener('click', closeInfoMenu);
+el('tab-projects').addEventListener('click', ()=> selectInfoTab('projects'));
 el('tab-info').addEventListener('click', ()=> selectInfoTab('info'));
 el('tab-instructions').addEventListener('click', ()=> selectInfoTab('instructions'));
 el('tab-memory').addEventListener('click', ()=> selectInfoTab('memory'));
@@ -1084,7 +1150,7 @@ el('tab-config').addEventListener('click', ()=> selectInfoTab('config'));
 el('tab-release').addEventListener('click', ()=> selectInfoTab('release'));
 
 function refreshMemoryListIfVisible(){
-  if(!el('panel-memory').classList.contains('hidden')) renderMemoryList();
+  if(!el('view-memory').classList.contains('hidden')) renderMemoryList();
 }
 
 async function getMemoryItems(){
