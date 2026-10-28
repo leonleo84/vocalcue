@@ -251,6 +251,17 @@
     border-radius: 999px;
     transition: width 0.2s ease;
   }
+  .faq-list .faq-item{
+    border-bottom: 1px solid var(--line);
+    padding: 12px 0;
+  }
+  .faq-list .faq-item:last-child{ border-bottom: none; }
+  .faq-list .faq-item summary{
+    font-size: 0.95rem;
+  }
+
+  .faq-content p{ margin: 0 0 10px; }
+  .faq-content p:last-child{ margin-bottom: 0; }
   .release-list{
     list-style:none;
     margin:0; padding:0;
@@ -354,9 +365,7 @@
     margin-bottom: 4px;
   }
   .menu-sidebar-title{
-    font-family: "Playfair Display", Georgia, serif;
-    font-weight: 600;
-    color: var(--text);
+    font-size: 1.3rem;
   }
   .menu-close-btn{
     background:none;
@@ -451,9 +460,9 @@
     color: var(--accent);
   }
   details[open] summary::before{ content: "▾ "; }
-  details .inst-body{ margin-top:12px; font-size: 0.88rem; line-height:1.55; color: var(--text); }
-  details .inst-body h3{ font-size:0.85rem; color:var(--accent-2); margin: 14px 0 4px; }
-  details .inst-body ol, details .inst-body ul{ padding-left: 20px; margin: 4px 0; }
+  .inst-body, .faq-content{ margin-top:12px; font-size: 0.88rem; line-height:1.55; color: var(--text); }
+  .inst-body h3, .faq-content h3{ font-size:0.85rem; color:var(--accent-2); margin: 14px 0 4px; }
+  .inst-body ol, .inst-body ul, .faq-content ol, .faq-content ul{ padding-left: 20px; margin: 4px 0; }
   .keep-current-row{
     text-align: right;
     margin-top: -6px;
@@ -481,7 +490,7 @@
     color: var(--text-dim);
     opacity: 0.6;
   }
-  details .inst-body code{
+  .inst-body code, .faq-content code{
     background: var(--bg-deep);
     padding: 1px 5px;
     border-radius:4px;
@@ -599,7 +608,7 @@
   <div id="menu-overlay" class="menu-overlay"></div>
   <div id="menu-dropdown" class="menu-dropdown">
     <div class="menu-sidebar-header">
-      <span class="menu-sidebar-title">VocalCue</span>
+      <span class="brand menu-sidebar-title">Vocal<span>Cue</span></span>
       <button id="menu-close" class="menu-close-btn" aria-label="Chiudi menu">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
       </button>
@@ -719,38 +728,72 @@
   </section>
 
   <section id="view-instructions" class="hidden">
-    <div class="inst-body">
-        <h3>0. Mettere VocalCue comodamente sul telefono</h3>
-        <p>Apri l'indirizzo web di VocalCue nel browser del telefono, poi aggiungilo alla schermata Home per usarlo come una vera app. La procedura è simile su qualunque browser — qui sotto trovi Chrome e Safari solo come esempio, ma funziona allo stesso modo anche con altri browser (es. Firefox, Edge, Samsung Internet).</p>
-        <p><strong>Android:</strong> apri il link, tocca i tre puntini (o il menu del browser), scegli "Aggiungi a schermata Home". Da quel momento avrai un'icona che apre l'app a schermo intero.</p>
-        <p><strong>iPhone:</strong> apri il link nel browser, tocca l'icona di condivisione, scorri e scegli "Aggiungi a Home".</p>
+    <div class="inst-body faq-list">
 
-        <h3>1. Progetti</h3>
-        <p>Un progetto raccoglie le canzoni di un corso, una classe o un musical specifico (es. "Musical classe A", "Coro del giovedì"). Crea un progetto, poi aggiungi al suo interno tutte le tracce che ti servono per quel gruppo. Puoi passare da un progetto all'altro dal menu in qualsiasi momento.</p>
+      <details class="faq-item">
+        <summary>Mettere VocalCue comodamente sul telefono</summary>
+        <div class="faq-content">
+          <p>Apri l'indirizzo web di VocalCue nel browser del telefono, poi aggiungilo alla schermata Home per usarlo come una vera app. La procedura è simile su qualunque browser — qui sotto trovi Chrome e Safari solo come esempio, ma funziona allo stesso modo anche con altri browser (es. Firefox, Edge, Samsung Internet).</p>
+          <p><strong>Android:</strong> apri il link, tocca i tre puntini (o il menu del browser), scegli "Aggiungi a schermata Home". Da quel momento avrai un'icona che apre l'app a schermo intero.</p>
+          <p><strong>iPhone:</strong> apri il link nel browser, tocca l'icona di condivisione, scorri e scegli "Aggiungi a Home".</p>
+        </div>
+      </details>
 
-        <h3>2. La cartella VocalCue</h3>
-        <p>Non è un requisito tecnico dell'app — puoi tenere i file audio ovunque preferisci — ma ti consigliamo di creare un'unica cartella dedicata, chiamata ad esempio <code>VocalCue</code>, sul tuo dispositivo (o dentro Google Drive, se vuoi tenerla sincronizzata tra più dispositivi). Avere tutti i file in un solo posto rende molto più veloce ritrovarli ogni volta che l'app te li richiede, invece di doverli cercare tra cartelle diverse.</p>
-        <p>Su qualsiasi piattaforma — computer, Android o iPhone — il funzionamento è lo stesso: copia prima il file audio nella cartella VocalCue, poi selezionalo dall'app quando richiesto. Il nome del file atteso è sempre indicato accanto al nome della traccia nel menu a tendina, così sai sempre quale cercare. Come controllo aggiuntivo, l'app ricorda la dimensione e la durata del file usato per creare i marcatori: se un giorno selezioni un file che sembra diverso, ti chiederà conferma esplicita prima di usarlo, dandoti la possibilità di sceglierne un altro.</p>
-        <p><strong>Selezionare un file da Google Drive su iPhone:</strong> se Drive non compare nella schermata di selezione, apri l'app File di iOS, tocca "Sfoglia" in basso, poi i tre puntini (o "Modifica") in alto a destra e attiva l'interruttore accanto a "Google Drive" — da quel momento resterà visibile ogni volta che scegli un file, anche da VocalCue. Serve avere l'app Google Drive installata e l'accesso effettuato con il proprio account.</p>
-        <p><strong>Nota:</strong> il selettore di file mostra tutti i file, non solo quelli che il telefono riconosce come audio — questo evita che alcuni mp3 (specialmente quelli scaricati con convertitori online) risultino erroneamente non selezionabili. Scegli comunque il file audio giusto: se per errore ne scegli uno non riproducibile, l'app te lo segnala.</p>
+      <details class="faq-item">
+        <summary>Progetti</summary>
+        <div class="faq-content">
+          <p>Un progetto raccoglie le canzoni di un corso, una classe o un musical specifico (es. "Musical classe A", "Coro del giovedì"). Crea un progetto, poi aggiungi al suo interno tutte le tracce che ti servono per quel gruppo. Puoi passare da un progetto all'altro dal menu in qualsiasi momento.</p>
+        </div>
+      </details>
 
-        <h3>3. Marcatori</h3>
-        <p>Metti in pausa la traccia nel punto che vuoi memorizzare e tocca "Segna questo punto": ti verrà chiesta un'etichetta (es. "Ritornello"). Tocca il pulsante play accanto a un marcatore nella lista per far ripartire la traccia esattamente da lì. Ogni marcatore può essere rinominato o eliminato singolarmente.</p>
+      <details class="faq-item">
+        <summary>La cartella VocalCue</summary>
+        <div class="faq-content">
+          <p>Non è un requisito tecnico dell'app — puoi tenere i file audio ovunque preferisci — ma ti consigliamo di creare un'unica cartella dedicata, chiamata ad esempio <code>VocalCue</code>, sul tuo dispositivo (o dentro Google Drive, se vuoi tenerla sincronizzata tra più dispositivi). Avere tutti i file in un solo posto rende molto più veloce ritrovarli ogni volta che l'app te li richiede, invece di doverli cercare tra cartelle diverse.</p>
+          <p>Su qualsiasi piattaforma — computer, Android o iPhone — il funzionamento è lo stesso: copia prima il file audio nella cartella VocalCue, poi selezionalo dall'app quando richiesto. Il nome del file atteso è sempre indicato accanto al nome della traccia nel menu a tendina, così sai sempre quale cercare. Come controllo aggiuntivo, l'app ricorda la dimensione e la durata del file usato per creare i marcatori: se un giorno selezioni un file che sembra diverso, ti chiederà conferma esplicita prima di usarlo, dandoti la possibilità di sceglierne un altro.</p>
+          <p><strong>Selezionare un file da Google Drive su iPhone:</strong> se Drive non compare nella schermata di selezione, apri l'app File di iOS, tocca "Sfoglia" in basso, poi i tre puntini (o "Modifica") in alto a destra e attiva l'interruttore accanto a "Google Drive" — da quel momento resterà visibile ogni volta che scegli un file, anche da VocalCue. Serve avere l'app Google Drive installata e l'accesso effettuato con il proprio account.</p>
+          <p><strong>Nota:</strong> il selettore di file mostra tutti i file, non solo quelli che il telefono riconosce come audio — questo evita che alcuni mp3 (specialmente quelli scaricati con convertitori online) risultino erroneamente non selezionabili. Scegli comunque il file audio giusto: se per errore ne scegli uno non riproducibile, l'app te lo segnala.</p>
+        </div>
+      </details>
 
-        <h3>4. "Mantieni in memoria su questo dispositivo"</h3>
-        <p>Opzione per evitare di riselezionare il file ogni volta: salva il file audio direttamente nel browser, fino a un totale di 250 MB su tutti i progetti insieme. Se lo spazio non basta per una nuova traccia, l'app ti chiederà quale traccia già salvata rimuovere per fare posto.</p>
-        <p>Nel menu, la voce <strong>"Memoria dispositivo"</strong> mostra l'elenco di tutte le tracce attualmente salvate in questo modo, con nome, dimensione e data di salvataggio, e quanto spazio stai occupando sul totale di 250 MB disponibili. Da lì puoi rimuoverne una in qualsiasi momento toccando l'icona del cestino accanto ad essa: questo libera <strong>spazio</strong> nell'app, ma <strong>non elimina la traccia dall'app</strong> — i suoi marcatori restano intatti, semplicemente la prossima volta che la selezioni ti verrà richiesto di riselezionare il file audio manualmente, come per qualsiasi altra traccia non mantenuta in memoria.</p>
+      <details class="faq-item">
+        <summary>Marcatori</summary>
+        <div class="faq-content">
+          <p>Metti in pausa la traccia nel punto che vuoi memorizzare e tocca "Segna questo punto": ti verrà chiesta un'etichetta (es. "Ritornello"). Tocca il pulsante play accanto a un marcatore nella lista per far ripartire la traccia esattamente da lì. Ogni marcatore può essere rinominato o eliminato singolarmente.</p>
+        </div>
+      </details>
 
-        <h3>5. Eliminare una traccia o un progetto</h3>
-        <p>Eliminare una traccia la rimuove solo dall'app: il file audio resta nella cartella (locale o su Drive) e va rimosso manualmente se non serve più. Eliminare un progetto elimina tutte le sue tracce e marcatori.</p>
+      <details class="faq-item">
+        <summary>"Mantieni in memoria su questo dispositivo"</summary>
+        <div class="faq-content">
+          <p>Opzione per evitare di riselezionare il file ogni volta: salva il file audio direttamente nel browser, fino a un totale di 250 MB su tutti i progetti insieme. Se lo spazio non basta per una nuova traccia, l'app ti chiederà quale traccia già salvata rimuovere per fare posto.</p>
+          <p>Nel menu, la voce <strong>"Memoria dispositivo"</strong> mostra l'elenco di tutte le tracce attualmente salvate in questo modo, con nome, dimensione e data di salvataggio, e quanto spazio stai occupando sul totale di 250 MB disponibili. Da lì puoi rimuoverne una in qualsiasi momento toccando l'icona del cestino accanto ad essa: questo libera <strong>spazio</strong> nell'app, ma <strong>non elimina la traccia dall'app</strong> — i suoi marcatori restano intatti, semplicemente la prossima volta che la selezioni ti verrà richiesto di riselezionare il file audio manualmente, come per qualsiasi altra traccia non mantenuta in memoria.</p>
+        </div>
+      </details>
 
-        <h3>6. Esportare/importare la configurazione — il tuo unico vero salvataggio</h3>
-        <p>Progetti, tracce e marcatori vengono tenuti solo nella memoria di questo browser su questo dispositivo: non c'è alcun salvataggio automatico altrove. Se svuoti la cache, disinstalli il browser, cambi telefono o semplicemente quella memoria viene cancellata, perdi tutto senza preavviso.</p>
-        <p>Per questo motivo, "Esporta progetti…" (che trovi nel menu, alla voce <strong>"Configurazione"</strong>) non è un'opzione solo per trasferire i dati su un altro dispositivo: è <strong>l'unico modo per avere una copia di sicurezza reale</strong> del tuo lavoro. Usalo regolarmente — ad esempio dopo ogni sessione in cui aggiungi tracce o marcatori. Alla pressione del pulsante ti verrà chiesto quali progetti includere nel file esportato: puoi esportarli tutti o solo quelli che ti interessano in quel momento. Conserva il file JSON scaricato in un posto sicuro (es. email a te stesso, Google Drive).</p>
-        <p>"Importa progetti…", nella stessa sezione, legge un file esportato in precedenza e ti mostra quali progetti contiene, lasciandoti scegliere quali aggiungere. <strong>Attenzione:</strong> se un progetto selezionato ha lo stesso nome di uno già presente nell'app, l'app ti chiede conferma e, se confermi, <strong>lo sostituisce del tutto, tracce e marcatori compresi</strong>. Solo i progetti con un nome diverso vengono aggiunti come nuovi, senza toccare nulla di esistente. Prima di importare, controlla sempre di non avere già un progetto con lo stesso nome a cui tieni.</p>
+      <details class="faq-item">
+        <summary>Eliminare una traccia o un progetto</summary>
+        <div class="faq-content">
+          <p>Eliminare una traccia la rimuove solo dall'app: il file audio resta nella cartella (locale o su Drive) e va rimosso manualmente se non serve più. Eliminare un progetto elimina tutte le sue tracce e marcatori.</p>
+        </div>
+      </details>
 
-        <h3>7. Link YouTube</h3>
-        <p>Per una traccia da YouTube, incolla il link: il video resta visibile nella pagina, ma puoi comunque segnare punti precisi e farli ripartire da lì come con un file audio.</p>
+      <details class="faq-item">
+        <summary>Esportare/importare la configurazione — il tuo unico vero salvataggio</summary>
+        <div class="faq-content">
+          <p>Progetti, tracce e marcatori vengono tenuti solo nella memoria di questo browser su questo dispositivo: non c'è alcun salvataggio automatico altrove. Se svuoti la cache, disinstalli il browser, cambi telefono o semplicemente quella memoria viene cancellata, perdi tutto senza preavviso.</p>
+          <p>Per questo motivo, "Esporta progetti…" (che trovi nel menu, alla voce <strong>"Configurazione"</strong>) non è un'opzione solo per trasferire i dati su un altro dispositivo: è <strong>l'unico modo per avere una copia di sicurezza reale</strong> del tuo lavoro. Usalo regolarmente — ad esempio dopo ogni sessione in cui aggiungi tracce o marcatori. Alla pressione del pulsante ti verrà chiesto quali progetti includere nel file esportato: puoi esportarli tutti o solo quelli che ti interessano in quel momento. Conserva il file JSON scaricato in un posto sicuro (es. email a te stesso, Google Drive).</p>
+          <p>"Importa progetti…", nella stessa sezione, legge un file esportato in precedenza e ti mostra quali progetti contiene, lasciandoti scegliere quali aggiungere. <strong>Attenzione:</strong> se un progetto selezionato ha lo stesso nome di uno già presente nell'app, l'app ti chiede conferma e, se confermi, <strong>lo sostituisce del tutto, tracce e marcatori compresi</strong>. Solo i progetti con un nome diverso vengono aggiunti come nuovi, senza toccare nulla di esistente. Prima di importare, controlla sempre di non avere già un progetto con lo stesso nome a cui tieni.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>Link YouTube</summary>
+        <div class="faq-content">
+          <p>Per una traccia da YouTube, incolla il link: il video resta visibile nella pagina, ma puoi comunque segnare punti precisi e farli ripartire da lì come con un file audio.</p>
+        </div>
+      </details>
+
     </div>
   </section>
 
@@ -784,6 +827,7 @@
             <li>Aggiunta la sezione "Note di rilascio" nel menu, con lo storico delle versioni pubblicate.</li>
             <li>Il menu è ora un pannello laterale, aperto tramite l'icona ☰ nell'intestazione.</li>
             <li>Aggiunta la voce "Progetti" al menu: è la vista che si apre per prima, per la gestione di progetti, tracce e riproduzione.</li>
+            <li>Pagina "Istruzioni" ristrutturata per una consultazione più rapida.</li>
           </ul>
         </li>
         <li>
@@ -814,7 +858,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261028132832</p>
+  <p class="version-tag">Versione: 1.0.20261028172748</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
