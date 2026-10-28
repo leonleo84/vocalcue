@@ -877,7 +877,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261028174247 — BUILD DI TEST (dati separati da quelli reali)</p>
+  <p class="version-tag">Versione: 1.0.20261028174627 — BUILD DI TEST (dati separati da quelli reali)</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1086,7 +1086,10 @@ el('btn-share-project').addEventListener('click', async ()=>{
 
   let file;
   try{
-    file = new File([data], fileName, { type: 'application/json' });
+    // "text/plain" invece di "application/json": alcune versioni di Android/Chrome
+    // accettano alla condivisione solo un elenco ristretto di tipi di file, e "text/plain"
+    // è sempre incluso. Il nome del file mantiene comunque l'estensione .json.
+    file = new File([data], fileName, { type: 'text/plain' });
   }catch(e){
     fallbackDownload('Condivisione diretta non disponibile: il file è stato scaricato, puoi condividerlo manualmente.');
     return;
