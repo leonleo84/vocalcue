@@ -660,8 +660,12 @@
       <option value="">— Nessuna traccia selezionata —</option>
     </select>
     <div class="row">
-      <button class="ghost" id="btn-rename-track">Rinomina</button>
-      <button class="danger" id="btn-delete-track">Elimina traccia</button>
+      <button class="icon-action-btn ghost" id="btn-rename-track" aria-label="Rinomina traccia" title="Rinomina" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+      <button class="icon-action-btn danger" id="btn-delete-track" aria-label="Elimina traccia" title="Elimina" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </button>
     </div>
   </section>
 
@@ -873,7 +877,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261028173424 — BUILD DI TEST (dati separati da quelli reali)</p>
+  <p class="version-tag">Versione: 1.0.20261028174008 — BUILD DI TEST (dati separati da quelli reali)</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1121,7 +1125,11 @@ function renderTrackSelect(){
   const sel = el('track-select');
   sel.innerHTML = '<option value="">— Nessuna traccia selezionata —</option>';
   const project = getCurrentProject();
-  if(!project) return;
+  if(!project){
+    el('btn-rename-track').disabled = true;
+    el('btn-delete-track').disabled = true;
+    return;
+  }
   const sortedTracks = [...project.tracks].sort((a,b)=> a.name.localeCompare(b.name, 'it', {sensitivity:'base'}));
   sortedTracks.forEach(t=>{
     const opt = document.createElement('option');
@@ -1132,6 +1140,9 @@ function renderTrackSelect(){
     if(t.id === currentTrackId) opt.selected = true;
     sel.appendChild(opt);
   });
+  const hasTrack = project.tracks.some(t=> t.id === currentTrackId);
+  el('btn-rename-track').disabled = !hasTrack;
+  el('btn-delete-track').disabled = !hasTrack;
 }
 
 function renderMarkers(){
@@ -1551,11 +1562,15 @@ el('track-select').addEventListener('change', async (e)=>{
     el('player-section').classList.add('hidden');
     el('markers-section').classList.add('hidden');
     setAddMarkerEnabled(false);
+    el('btn-rename-track').disabled = true;
+    el('btn-delete-track').disabled = true;
     return;
   }
   const project = getCurrentProject();
   const track = project.tracks.find(t=>t.id === id);
   currentTrackId = id;
+  el('btn-rename-track').disabled = false;
+  el('btn-delete-track').disabled = false;
   await loadTrackIntoPlayer(track);
 });
 
