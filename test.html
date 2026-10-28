@@ -877,7 +877,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261028174627 — BUILD DI TEST (dati separati da quelli reali)</p>
+  <p class="version-tag">Versione: 1.0.20261028174927 — BUILD DI TEST (dati separati da quelli reali)</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1081,7 +1081,7 @@ el('btn-share-project').addEventListener('click', async ()=>{
     a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);
-    if(message) showToast(message);
+    if(message) showToast(message, 9000);
   }
 
   let file;
@@ -1096,10 +1096,13 @@ el('btn-share-project').addEventListener('click', async ()=>{
   }
 
   let canShareFiles = false;
+  let diagInfo = '';
   try{
     canShareFiles = !!(navigator.canShare && navigator.canShare({ files: [file] }));
+    diagInfo = 'canShare esiste: ' + (!!navigator.canShare) + ', risultato: ' + canShareFiles;
   }catch(e){
     canShareFiles = false;
+    diagInfo = 'canShare ha generato un errore: ' + (e && e.message);
   }
 
   if(canShareFiles){
@@ -1107,12 +1110,12 @@ el('btn-share-project').addEventListener('click', async ()=>{
       await navigator.share({ files: [file], title: 'VocalCue — ' + project.name });
     }catch(e){
       if(e && e.name === 'AbortError') return; // l'utente ha annullato esplicitamente: nessuna azione necessaria
-      fallbackDownload('Non è stato possibile completare la condivisione: il file è stato scaricato, puoi condividerlo manualmente.');
+      fallbackDownload('DIAGNOSTICA: ' + diagInfo + ' — ma share() ha fallito: ' + (e && e.name) + ' - ' + (e && e.message));
     }
   } else {
     // Il dispositivo/browser non supporta la condivisione diretta di file: scarichiamo il file
     // così l'utente può comunque condividerlo manualmente.
-    fallbackDownload('Condivisione diretta non supportata qui: il file è stato scaricato, puoi condividerlo manualmente.');
+    fallbackDownload('DIAGNOSTICA: ' + diagInfo);
   }
 });
 
