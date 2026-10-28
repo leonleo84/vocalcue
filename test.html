@@ -245,7 +245,14 @@
     border-bottom: 1px solid var(--line);
   }
   .release-list li:last-child{ border-bottom:none; }
-  .release-list p{ margin: 0; }
+  .release-items{
+    margin: 0;
+    padding-left: 20px;
+  }
+  .release-items li{
+    margin-bottom: 4px;
+  }
+  .release-items li:last-child{ margin-bottom: 0; }
   .release-date{
     font-weight: 600;
     color: var(--accent-2);
@@ -708,21 +715,33 @@
       <ul class="release-list">
         <li>
           <div class="release-date">26 ottobre 2026</div>
-          <p>Il limite di memoria sul dispositivo è passato da un numero fisso di tracce a uno spazio complessivo (250 MB), con un indicatore visivo di quanto ne hai usato. Corretto un bug per cui un progetto importato su un altro dispositivo risultava erroneamente con tracce già "in memoria". Aggiunto un controllo che chiede conferma se, riselezionando manualmente un file, questo sembra diverso da quello originale.</p>
+          <ul class="release-items">
+            <li>Il limite di memoria sul dispositivo è passato da un numero fisso di tracce a uno spazio complessivo (250 MB), con un indicatore visivo di quanto ne hai usato.</li>
+            <li>Corretto un bug per cui un progetto importato su un altro dispositivo risultava erroneamente con tracce già "in memoria".</li>
+            <li>Aggiunto un controllo che chiede conferma se, riselezionando manualmente un file, questo sembra diverso da quello originale.</li>
+          </ul>
         </li>
         <li>
           <div class="release-date">24 ottobre 2026</div>
-          <p>Introdotto il menu con le sezioni Informazioni, Istruzioni, Memoria dispositivo e Configurazione. Aggiunta la possibilità di mantenere in memoria sul dispositivo anche tracce già esistenti, non solo quelle appena create, con elenco dedicato e indicazione del progetto di appartenenza. Corretto un bug che non annullava davvero la creazione di marcatori e tracce quando si premeva "Annulla". Corretti diversi problemi di selezione dei file audio su iPhone. Aggiunte favicon e icona per la schermata Home, nuovi caratteri tipografici, e vari altri miglioramenti e correzioni all'interfaccia.</p>
+          <ul class="release-items">
+            <li>Introdotto il menu con le sezioni Informazioni, Istruzioni, Memoria dispositivo e Configurazione.</li>
+            <li>Aggiunta la possibilità di mantenere in memoria sul dispositivo anche tracce già esistenti, non solo quelle appena create, con elenco dedicato e indicazione del progetto di appartenenza.</li>
+            <li>Corretto un bug che non annullava davvero la creazione di marcatori e tracce quando si premeva "Annulla".</li>
+            <li>Corretti diversi problemi di selezione dei file audio su iPhone.</li>
+            <li>Aggiunte favicon e icona per la schermata Home, nuovi caratteri tipografici, e vari altri miglioramenti e correzioni all'interfaccia.</li>
+          </ul>
         </li>
         <li>
           <div class="release-date">23 ottobre 2026</div>
-          <p>Primo rilascio.</p>
+          <ul class="release-items">
+            <li>Primo rilascio.</li>
+          </ul>
         </li>
       </ul>
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261028105637 — BUILD DI TEST (dati separati da quelli reali)</p>
+  <p class="version-tag">Versione: 1.0.20261028105750 — BUILD DI TEST (dati separati da quelli reali)</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
