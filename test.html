@@ -236,6 +236,22 @@
     border-radius: 999px;
     transition: width 0.2s ease;
   }
+  .release-list{
+    list-style:none;
+    margin:0; padding:0;
+  }
+  .release-list li{
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .release-list li:last-child{ border-bottom:none; }
+  .release-list p{ margin: 0; }
+  .release-date{
+    font-weight: 600;
+    color: var(--accent-2);
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+  }
   .memory-list{
     list-style:none;
     margin:0; padding:0;
@@ -631,6 +647,7 @@
         <button class="menu-item" id="tab-instructions"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg><span>Istruzioni</span></button>
         <button class="menu-item" id="tab-memory"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="18" x2="15" y2="18"/></svg><span>Memoria dispositivo</span></button>
         <button class="menu-item" id="tab-config"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1z"/></svg><span>Configurazione</span></button>
+        <button class="menu-item" id="tab-release"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M5 10l7-4 7 4-7 4-7-4Z"/><path d="M5 10v8l7 4 7-4v-8"/></svg><span>Note di rilascio</span></button>
       </div>
     </div>
 
@@ -686,9 +703,26 @@
       </div>
       <input type="file" id="import-file-input" accept="application/json" class="hidden">
     </div>
+
+    <div id="panel-release" class="inst-body hidden">
+      <ul class="release-list">
+        <li>
+          <div class="release-date">26 ottobre 2026</div>
+          <p>Il limite di memoria sul dispositivo è passato da un numero fisso di tracce a uno spazio complessivo (250 MB), con un indicatore visivo di quanto ne hai usato. Corretto un bug per cui un progetto importato su un altro dispositivo risultava erroneamente con tracce già "in memoria". Aggiunto un controllo che chiede conferma se, riselezionando manualmente un file, questo sembra diverso da quello originale.</p>
+        </li>
+        <li>
+          <div class="release-date">24 ottobre 2026</div>
+          <p>Introdotto il menu con le sezioni Informazioni, Istruzioni, Memoria dispositivo e Configurazione. Aggiunta la possibilità di mantenere in memoria sul dispositivo anche tracce già esistenti, non solo quelle appena create, con elenco dedicato e indicazione del progetto di appartenenza. Corretto un bug che non annullava davvero la creazione di marcatori e tracce quando si premeva "Annulla". Corretti diversi problemi di selezione dei file audio su iPhone. Aggiunte favicon e icona per la schermata Home, nuovi caratteri tipografici, e vari altri miglioramenti e correzioni all'interfaccia.</p>
+        </li>
+        <li>
+          <div class="release-date">23 ottobre 2026</div>
+          <p>Primo rilascio.</p>
+        </li>
+      </ul>
+    </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261026155201 — BUILD DI TEST (dati separati da quelli reali)</p>
+  <p class="version-tag">Versione: 1.0.20261028105637 — BUILD DI TEST (dati separati da quelli reali)</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -994,10 +1028,10 @@ el('audio-file-input').addEventListener('change', (e)=>{
 });
 
 // ---------- Tabs (Informazioni / Istruzioni / Memoria dispositivo) ----------
-const infoTabLabels = { info: 'Informazioni', instructions: 'Istruzioni', memory: 'Memoria dispositivo', config: 'Configurazione' };
+const infoTabLabels = { info: 'Informazioni', instructions: 'Istruzioni', memory: 'Memoria dispositivo', config: 'Configurazione', release: 'Note di rilascio' };
 function selectInfoTab(tab){
-  const tabs = { info: 'tab-info', instructions: 'tab-instructions', memory: 'tab-memory', config: 'tab-config' };
-  const panels = { info: 'panel-info', instructions: 'panel-instructions', memory: 'panel-memory', config: 'panel-config' };
+  const tabs = { info: 'tab-info', instructions: 'tab-instructions', memory: 'tab-memory', config: 'tab-config', release: 'tab-release' };
+  const panels = { info: 'panel-info', instructions: 'panel-instructions', memory: 'panel-memory', config: 'panel-config', release: 'panel-release' };
   Object.keys(tabs).forEach(key=>{
     el(tabs[key]).classList.toggle('active', key === tab);
     el(panels[key]).classList.toggle('hidden', key !== tab);
@@ -1028,6 +1062,7 @@ el('tab-info').addEventListener('click', ()=> selectInfoTab('info'));
 el('tab-instructions').addEventListener('click', ()=> selectInfoTab('instructions'));
 el('tab-memory').addEventListener('click', ()=> selectInfoTab('memory'));
 el('tab-config').addEventListener('click', ()=> selectInfoTab('config'));
+el('tab-release').addEventListener('click', ()=> selectInfoTab('release'));
 
 function refreshMemoryListIfVisible(){
   if(!el('panel-memory').classList.contains('hidden')) renderMemoryList();
