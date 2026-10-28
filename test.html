@@ -877,7 +877,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261028174008 — BUILD DI TEST (dati separati da quelli reali)</p>
+  <p class="version-tag">Versione: 1.0.20261028174247 — BUILD DI TEST (dati separati da quelli reali)</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1072,7 +1072,25 @@ el('btn-share-project').addEventListener('click', async ()=>{
   if(!project){ showToast('Seleziona prima un progetto da condividere.'); return; }
   const data = JSON.stringify({ projects: [project] }, null, 2);
   const fileName = 'vocalcue-' + project.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.json';
-  const file = new File([data], fileName, { type: 'application/json' });
+
+  function fallbackDownload(message){
+    const blob = new Blob([data], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+    if(message) showToast(message);
+  }
+
+  let file;
+  try{
+    file = new File([data], fileName, { type: 'application/json' });
+  }catch(e){
+    fallbackDownload('Condivisione diretta non disponibile: il file è stato scaricato, puoi condividerlo manualmente.');
+    return;
+  }
 
   let canShareFiles = false;
   try{
@@ -1085,19 +1103,13 @@ el('btn-share-project').addEventListener('click', async ()=>{
     try{
       await navigator.share({ files: [file], title: 'VocalCue — ' + project.name });
     }catch(e){
-      // L'utente ha annullato la condivisione, oppure è stato interrotto: nessuna azione necessaria.
+      if(e && e.name === 'AbortError') return; // l'utente ha annullato esplicitamente: nessuna azione necessaria
+      fallbackDownload('Non è stato possibile completare la condivisione: il file è stato scaricato, puoi condividerlo manualmente.');
     }
   } else {
     // Il dispositivo/browser non supporta la condivisione diretta di file: scarichiamo il file
     // così l'utente può comunque condividerlo manualmente.
-    const blob = new Blob([data], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Condivisione diretta non supportata qui: il file è stato scaricato, puoi condividerlo manualmente.');
+    fallbackDownload('Condivisione diretta non supportata qui: il file è stato scaricato, puoi condividerlo manualmente.');
   }
 });
 
