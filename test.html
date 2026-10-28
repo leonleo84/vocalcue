@@ -644,8 +644,8 @@
       <button class="icon-action-btn ghost" id="btn-rename-project" aria-label="Rinomina progetto" title="Rinomina" disabled>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
       </button>
-      <button class="icon-action-btn ghost" id="btn-share-project" aria-label="Condividi progetto" title="Condividi" disabled>
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <button class="icon-action-btn ghost" id="btn-export-project" aria-label="Esporta questo progetto" title="Esporta questo progetto" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
       </button>
       <button class="icon-action-btn danger" id="btn-delete-project" aria-label="Elimina progetto" title="Elimina" disabled>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
@@ -761,7 +761,7 @@
         <summary>Progetti</summary>
         <div class="faq-content">
           <p>Un progetto raccoglie le canzoni di un corso, una classe o un musical specifico (es. "Musical classe A", "Coro del giovedì"). Crea un progetto, poi aggiungi al suo interno tutte le tracce che ti servono per quel gruppo. Puoi passare da un progetto all'altro dal menu in qualsiasi momento.</p>
-          <p>L'icona di condivisione invia direttamente il progetto selezionato (es. tramite WhatsApp o email) usando il menu di condivisione del telefono — comoda per passare velocemente le canzoni di un progetto a un collega, senza dover prima esportare un file e poi allegarlo a mano.</p>
+          <p>L'icona di esportazione scarica subito il file di quel singolo progetto (lo stesso formato usato da "Esporta progetti…" nella sezione Configurazione, ma già pronto senza dover scegliere dalla lista) — comoda per passare velocemente le canzoni di un progetto a un collega: scaricato il file, basta allegarlo manualmente su WhatsApp, email o l'app che preferisci.</p>
         </div>
       </details>
 
@@ -877,7 +877,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261028174927 — BUILD DI TEST (dati separati da quelli reali)</p>
+  <p class="version-tag">Versione: 1.0.20261028175714 — BUILD DI TEST (dati separati da quelli reali)</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1024,7 +1024,7 @@ function renderProjectSelect(){
   el('track-section').classList.toggle('hidden', !hasProject);
   el('add-track-section').classList.toggle('hidden', !hasProject);
   el('btn-rename-project').disabled = !hasProject;
-  el('btn-share-project').disabled = !hasProject;
+  el('btn-export-project').disabled = !hasProject;
   el('btn-delete-project').disabled = !hasProject;
   if(hasProject){
     el('add-track-details').open = project.tracks.length === 0;
@@ -1067,56 +1067,20 @@ el('btn-rename-project').addEventListener('click', ()=>{
   }
 });
 
-el('btn-share-project').addEventListener('click', async ()=>{
+el('btn-export-project').addEventListener('click', ()=>{
   const project = getCurrentProject();
-  if(!project){ showToast('Seleziona prima un progetto da condividere.'); return; }
+  if(!project){ showToast('Seleziona prima un progetto da esportare.'); return; }
   const data = JSON.stringify({ projects: [project] }, null, 2);
   const fileName = 'vocalcue-' + project.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.json';
 
-  function fallbackDownload(message){
-    const blob = new Blob([data], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    a.click();
-    URL.revokeObjectURL(url);
-    if(message) showToast(message, 9000);
-  }
-
-  let file;
-  try{
-    // "text/plain" invece di "application/json": alcune versioni di Android/Chrome
-    // accettano alla condivisione solo un elenco ristretto di tipi di file, e "text/plain"
-    // è sempre incluso. Il nome del file mantiene comunque l'estensione .json.
-    file = new File([data], fileName, { type: 'text/plain' });
-  }catch(e){
-    fallbackDownload('Condivisione diretta non disponibile: il file è stato scaricato, puoi condividerlo manualmente.');
-    return;
-  }
-
-  let canShareFiles = false;
-  let diagInfo = '';
-  try{
-    canShareFiles = !!(navigator.canShare && navigator.canShare({ files: [file] }));
-    diagInfo = 'canShare esiste: ' + (!!navigator.canShare) + ', risultato: ' + canShareFiles;
-  }catch(e){
-    canShareFiles = false;
-    diagInfo = 'canShare ha generato un errore: ' + (e && e.message);
-  }
-
-  if(canShareFiles){
-    try{
-      await navigator.share({ files: [file], title: 'VocalCue — ' + project.name });
-    }catch(e){
-      if(e && e.name === 'AbortError') return; // l'utente ha annullato esplicitamente: nessuna azione necessaria
-      fallbackDownload('DIAGNOSTICA: ' + diagInfo + ' — ma share() ha fallito: ' + (e && e.name) + ' - ' + (e && e.message));
-    }
-  } else {
-    // Il dispositivo/browser non supporta la condivisione diretta di file: scarichiamo il file
-    // così l'utente può comunque condividerlo manualmente.
-    fallbackDownload('DIAGNOSTICA: ' + diagInfo);
-  }
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('File scaricato. Apri WhatsApp, email o l\'app che preferisci e allega il file appena scaricato per condividerlo.', 6000);
 });
 
 el('btn-delete-project').addEventListener('click', async ()=>{
