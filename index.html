@@ -406,6 +406,11 @@
   }
   #goto-time-input{ margin-bottom:0; flex: 1 1 90px; }
   #btn-goto-time{ flex: 0 0 auto; }
+  .icon-action-btn{
+    width: 40px;
+    padding: 0;
+    flex: 0 0 auto;
+  }
   .icon-btn{
     flex-shrink: 0;
     width: 30px;
@@ -633,9 +638,18 @@
       </div>
     </div>
     <div class="row">
-      <button class="primary grow" id="btn-add-project">Nuovo progetto</button>
-      <button class="ghost shrink" id="btn-rename-project">Rinomina</button>
-      <button class="danger shrink" id="btn-delete-project">Elimina</button>
+      <button class="icon-action-btn primary" id="btn-add-project" aria-label="Nuovo progetto" title="Nuovo progetto">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+      </button>
+      <button class="icon-action-btn ghost" id="btn-rename-project" aria-label="Rinomina progetto" title="Rinomina" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+      <button class="icon-action-btn ghost" id="btn-export-project" aria-label="Esporta questo progetto" title="Esporta questo progetto" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+      </button>
+      <button class="icon-action-btn danger" id="btn-delete-project" aria-label="Elimina progetto" title="Elimina" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </button>
     </div>
   </section>
 
@@ -646,8 +660,12 @@
       <option value="">— Nessuna traccia selezionata —</option>
     </select>
     <div class="row">
-      <button class="ghost" id="btn-rename-track">Rinomina</button>
-      <button class="danger" id="btn-delete-track">Elimina traccia</button>
+      <button class="icon-action-btn ghost" id="btn-rename-track" aria-label="Rinomina traccia" title="Rinomina" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+      <button class="icon-action-btn danger" id="btn-delete-track" aria-label="Elimina traccia" title="Elimina" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </button>
     </div>
   </section>
 
@@ -743,6 +761,7 @@
         <summary>Progetti</summary>
         <div class="faq-content">
           <p>Un progetto raccoglie le canzoni di un corso, una classe o un musical specifico (es. "Musical classe A", "Coro del giovedì"). Crea un progetto, poi aggiungi al suo interno tutte le tracce che ti servono per quel gruppo. Puoi passare da un progetto all'altro dal menu in qualsiasi momento.</p>
+          <p>L'icona di esportazione scarica subito il file di quel singolo progetto (lo stesso formato usato da "Esporta progetti…" nella sezione Configurazione, ma già pronto senza dover scegliere dalla lista) — comoda per passare velocemente le canzoni di un progetto a un collega: scaricato il file, basta allegarlo manualmente su WhatsApp, email o l'app che preferisci.</p>
         </div>
       </details>
 
@@ -821,6 +840,13 @@
     <div class="inst-body">
       <ul class="release-list">
         <li>
+          <div class="release-date">29 ottobre 2026</div>
+          <ul class="release-items">
+            <li>Nuovo layout dei pulsanti di Progetto e Traccia.</li>
+            <li>Aggiunta la possibilità di esportare rapidamente il singolo progetto aperto.</li>
+          </ul>
+        </li>
+        <li>
           <div class="release-date">28 ottobre 2026</div>
           <ul class="release-items">
             <li>Esportazione e importazione dei progetti ora selettive: puoi scegliere quali selezionare, con sostituzione guidata in caso di nome duplicato.</li>
@@ -858,7 +884,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261028172748</p>
+  <p class="version-tag">Versione: 1.0.20261029102034</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1004,6 +1030,9 @@ function renderProjectSelect(){
   const hasProject = !!project;
   el('track-section').classList.toggle('hidden', !hasProject);
   el('add-track-section').classList.toggle('hidden', !hasProject);
+  el('btn-rename-project').disabled = !hasProject;
+  el('btn-export-project').disabled = !hasProject;
+  el('btn-delete-project').disabled = !hasProject;
   if(hasProject){
     el('add-track-details').open = project.tracks.length === 0;
   }
@@ -1045,6 +1074,22 @@ el('btn-rename-project').addEventListener('click', ()=>{
   }
 });
 
+el('btn-export-project').addEventListener('click', ()=>{
+  const project = getCurrentProject();
+  if(!project){ showToast('Seleziona prima un progetto da esportare.'); return; }
+  const data = JSON.stringify({ projects: [project] }, null, 2);
+  const fileName = 'vocalcue-' + project.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.json';
+
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('File scaricato. Apri WhatsApp, email o l\'app che preferisci e allega il file appena scaricato per condividerlo.', 6000);
+});
+
 el('btn-delete-project').addEventListener('click', async ()=>{
   const project = getCurrentProject();
   if(!project){ showToast('Seleziona prima un progetto.'); return; }
@@ -1069,7 +1114,11 @@ function renderTrackSelect(){
   const sel = el('track-select');
   sel.innerHTML = '<option value="">— Nessuna traccia selezionata —</option>';
   const project = getCurrentProject();
-  if(!project) return;
+  if(!project){
+    el('btn-rename-track').disabled = true;
+    el('btn-delete-track').disabled = true;
+    return;
+  }
   const sortedTracks = [...project.tracks].sort((a,b)=> a.name.localeCompare(b.name, 'it', {sensitivity:'base'}));
   sortedTracks.forEach(t=>{
     const opt = document.createElement('option');
@@ -1080,6 +1129,9 @@ function renderTrackSelect(){
     if(t.id === currentTrackId) opt.selected = true;
     sel.appendChild(opt);
   });
+  const hasTrack = project.tracks.some(t=> t.id === currentTrackId);
+  el('btn-rename-track').disabled = !hasTrack;
+  el('btn-delete-track').disabled = !hasTrack;
 }
 
 function renderMarkers(){
@@ -1499,11 +1551,15 @@ el('track-select').addEventListener('change', async (e)=>{
     el('player-section').classList.add('hidden');
     el('markers-section').classList.add('hidden');
     setAddMarkerEnabled(false);
+    el('btn-rename-track').disabled = true;
+    el('btn-delete-track').disabled = true;
     return;
   }
   const project = getCurrentProject();
   const track = project.tracks.find(t=>t.id === id);
   currentTrackId = id;
+  el('btn-rename-track').disabled = false;
+  el('btn-delete-track').disabled = false;
   await loadTrackIntoPlayer(track);
 });
 
