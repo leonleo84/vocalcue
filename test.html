@@ -906,7 +906,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261118100729 — BUILD DI TEST (dati separati da quelli reali)</p>
+  <p class="version-tag">Versione: 1.0.20261118104741 — BUILD DI TEST (dati separati da quelli reali)</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1963,7 +1963,7 @@ function loadYoutube(videoId){
   }
   ytPlayer = new YT.Player('yt-player', {
     videoId: videoId,
-    playerVars: { rel: 0 },
+    playerVars: { rel: 0, origin: window.location.origin },
     events: {}
   });
 }
