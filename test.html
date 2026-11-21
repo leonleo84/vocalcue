@@ -689,16 +689,16 @@
       </div>
     </div>
     <div class="time-readout" id="time-readout">00:00</div>
+    <div class="row">
+      <label for="goto-time-input" class="goto-label">Vai a (min+sec)</label>
+      <input type="text" id="goto-time-input" placeholder="es. 123 per 1:23" inputmode="numeric">
+      <button id="btn-goto-time">Vai</button>
+    </div>
     <div class="row fine-seek-row">
       <button class="small" id="btn-seek-back5">-5s</button>
       <button class="small" id="btn-seek-back1">-1s</button>
       <button class="small" id="btn-seek-fwd1">+1s</button>
       <button class="small" id="btn-seek-fwd5">+5s</button>
-    </div>
-    <div class="row">
-      <label for="goto-time-input" class="goto-label">Vai a (min+sec)</label>
-      <input type="text" id="goto-time-input" placeholder="es. 123 per 1:23" inputmode="numeric">
-      <button id="btn-goto-time">Vai</button>
     </div>
     <div class="row">
       <button class="primary" id="btn-add-marker">Segna marcatore</button>
@@ -906,7 +906,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261118104741 — BUILD DI TEST (dati separati da quelli reali)</p>
+  <p class="version-tag">Versione: 1.0.20261121181941 — BUILD DI TEST (dati separati da quelli reali)</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -962,7 +962,28 @@ function loadConfig(){
         return;
       }
     }
-    config = { projects: [] };
+    // Primissima apertura dell'app (nessuna configurazione mai salvata su questo dispositivo):
+    // creiamo un progetto di esempio, così si capisce subito come funziona. Da qui in poi,
+    // qualsiasi modifica (anche solo questa creazione) viene salvata, quindi i prossimi
+    // caricamenti leggeranno sempre la configurazione reale dell'utente, non ricreeranno
+    // mai più questo esempio.
+    config = {
+      projects: [{
+        id: uid(),
+        name: 'Progetto di esempio',
+        tracks: [{
+          id: uid(),
+          name: 'The Greatest Showman',
+          type: 'youtube',
+          youtubeId: 'NyVYXRD1Ans',
+          markers: [
+            { id: uid(), label: 'Inizio Barnum (-5s)', time: 52 },
+            { id: uid(), label: "Where It's Covered", time: 152 }
+          ]
+        }]
+      }]
+    };
+    saveConfig();
   }catch(e){ config = { projects: [] }; }
 }
 
