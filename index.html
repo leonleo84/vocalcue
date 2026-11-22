@@ -867,6 +867,7 @@
             <li>Aggiunta la funzionalità Loop: puoi segnare un inizio e una fine che si ripetono automaticamente in continuo.</li>
             <li>Corretto un problema per cui i controlli nativi di un video YouTube incorporato potevano non rispondere.</li>
             <li>Aggiunto un progetto di esempio.</li>
+            <li>Corretto un bug per cui, creando, cambiando o eliminando un progetto, la traccia precedente restava visibile (e in riproduzione) invece di sparire insieme al resto.</li>
           </ul>
         </li>
         <li>
@@ -914,7 +915,7 @@
     </div>
   </section>
 
-  <p class="version-tag">Versione: 1.0.20261122110903</p>
+  <p class="version-tag">Versione: 1.1.20261122121552</p>
   <p class="version-tag">Realizzato con <span aria-label="amore">❤️</span> da Leonardo e <span style="color:#D97757;">Claude</span>.</p>
 
 </div>
@@ -1101,14 +1102,23 @@ el('btn-add-project').addEventListener('click', ()=>{
   config.projects.push(project);
   currentProjectId = project.id;
   currentTrackId = null;
+  try{ el('audio-player').pause(); }catch(err){}
+  if(ytPlayer && ytPlayer.stopVideo){ try{ ytPlayer.stopVideo(); }catch(err){} }
+  resetLoopPending();
+  stopActiveLoop();
   saveConfig();
   renderProjectSelect();
   renderTrackSelect();
+  el('player-section').classList.add('hidden');
+  el('markers-section').classList.add('hidden');
+  el('loops-section').classList.add('hidden');
 });
 
 el('project-select').addEventListener('change', (e)=>{
   currentProjectId = e.target.value || null;
   currentTrackId = null;
+  try{ el('audio-player').pause(); }catch(err){}
+  if(ytPlayer && ytPlayer.stopVideo){ try{ ytPlayer.stopVideo(); }catch(err){} }
   resetLoopPending();
   stopActiveLoop();
   renderProjectSelect();
@@ -1158,9 +1168,16 @@ el('btn-delete-project').addEventListener('click', async ()=>{
   config.projects = config.projects.filter(p=>p.id !== project.id);
   currentProjectId = null;
   currentTrackId = null;
+  try{ el('audio-player').pause(); }catch(err){}
+  if(ytPlayer && ytPlayer.stopVideo){ try{ ytPlayer.stopVideo(); }catch(err){} }
+  resetLoopPending();
+  stopActiveLoop();
   saveConfig();
   renderProjectSelect();
   renderTrackSelect();
+  el('player-section').classList.add('hidden');
+  el('markers-section').classList.add('hidden');
+  el('loops-section').classList.add('hidden');
   showToast('Progetto eliminato. Il file nella cartella sul dispositivo, se presente, non è stato toccato automaticamente.');
 });
 
